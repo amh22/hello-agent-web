@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, FormEvent } from "react";
 import { Message } from "./Message";
 import { UsageDetails, type UsageData } from "./UsageDetails";
+import { ActivityPanel, type ToolUse } from "./ActivityPanel";
 import { chat, type ChatMessage } from "../actions/chat";
 
 interface MessageWithUsage extends ChatMessage {
@@ -21,8 +22,11 @@ export function Chat() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
-  const [currentTool, setCurrentTool] = useState<string | null>(null);
+  const [toolHistory, setToolHistory] = useState<ToolUse[]>([]);
+  const [turnCount, setTurnCount] = useState(0);
+  const [elapsedTime, setElapsedTime] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const startTimeRef = useRef<number>(0);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -30,7 +34,18 @@ export function Chat() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, streamingContent]);
+  }, [messages, streamingContent, toolHistory]);
+
+  // Timer for elapsed time during loading
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isLoading) {
+      interval = setInterval(() => {
+        setElapsedTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -42,7 +57,10 @@ export function Chat() {
     setInput("");
     setIsLoading(true);
     setStreamingContent("");
-    setCurrentTool(null);
+    setToolHistory([]);
+    setTurnCount(0);
+    setElapsedTime(0);
+    startTimeRef.current = Date.now();
 
     try {
       const stream = await chat(newMessages);
@@ -65,7 +83,9 @@ export function Chat() {
               fullContent += event.content;
               setStreamingContent(fullContent);
             } else if (event.type === "tool_use") {
-              setCurrentTool(event.tool);
+              setToolHistory((prev) => [...prev, { tool: event.tool, timestamp: Date.now() }]);
+            } else if (event.type === "turn") {
+              setTurnCount(event.turn);
             } else if (event.type === "usage") {
               capturedUsage = event.data;
             } else if (event.type === "result") {
@@ -103,7 +123,7 @@ export function Chat() {
     } finally {
       setIsLoading(false);
       setStreamingContent("");
-      setCurrentTool(null);
+      setToolHistory([]);
     }
   };
 
@@ -113,27 +133,27 @@ export function Chat() {
 
   return (
     <div className="flex flex-col h-[600px] max-w-2xl mx-auto bg-white dark:bg-zinc-900 rounded-xl shadow-lg border border-zinc-200 dark:border-zinc-800">
+      {/* Header with suggested questions */}
+      <div className="border-b border-zinc-200 dark:border-zinc-800 p-4">
+        <p className="text-zinc-500 dark:text-zinc-400 text-center mb-3">
+          Ask me anything about my own source code!
+        </p>
+        <div className="flex flex-wrap gap-2 justify-center">
+          {SUGGESTED_QUESTIONS.map((question, index) => (
+            <button
+              key={index}
+              onClick={() => handleSuggestionClick(question)}
+              disabled={isLoading}
+              className="text-xs px-3 py-2 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {question}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto p-4">
-        {messages.length === 0 && !isLoading && (
-          <div className="text-center py-8">
-            <p className="text-zinc-500 dark:text-zinc-400 mb-4">
-              Ask me anything about my own source code!
-            </p>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {SUGGESTED_QUESTIONS.map((question, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleSuggestionClick(question)}
-                  className="text-xs px-3 py-2 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-                >
-                  {question}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {messages.map((message, index) => (
           <div key={index}>
             <Message role={message.role} content={message.content} />
@@ -152,21 +172,9 @@ export function Chat() {
           <Message role="assistant" content={streamingContent} isStreaming />
         )}
 
-        {/* Tool indicator */}
-        {isLoading && currentTool && (
-          <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 mb-4">
-            <span className="inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-            Using {currentTool}...
-          </div>
-        )}
-
-        {/* Loading indicator */}
+        {/* Activity panel during loading */}
         {isLoading && !streamingContent && (
-          <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
-            <span className="inline-block w-2 h-2 bg-zinc-400 rounded-full animate-pulse" />
-            <span className="inline-block w-2 h-2 bg-zinc-400 rounded-full animate-pulse delay-100" />
-            <span className="inline-block w-2 h-2 bg-zinc-400 rounded-full animate-pulse delay-200" />
-          </div>
+          <ActivityPanel toolHistory={toolHistory} turnCount={turnCount} elapsedTime={elapsedTime} />
         )}
 
         <div ref={messagesEndRef} />

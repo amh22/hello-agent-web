@@ -53,8 +53,21 @@ export async function chat(messages: ChatMessage[]): Promise<ReadableStream> {
           },
         });
 
+        // Track turns: a new turn starts when we see assistant after user (tool results)
+        let currentTurn = 0;
+        let lastMessageType = "";
+
         // Iterate over the async generator to get streaming messages
         for await (const message of response) {
+          // Detect turn transitions: user (tool results) → assistant = new turn
+          if (message.type === "assistant" && lastMessageType === "user") {
+            currentTurn++;
+            controller.enqueue(
+              encoder.encode(JSON.stringify({ type: "turn", turn: currentTurn }) + "\n")
+            );
+          }
+          lastMessageType = message.type;
+
           handleMessage(message, controller, encoder);
         }
 
@@ -82,43 +95,29 @@ function handleMessage(
   controller: ReadableStreamDefaultController,
   encoder: TextEncoder
 ) {
-  // Handle streaming text events
-  if (message.type === "stream_event" && message.event) {
-    const event = message.event;
-    if (
-      event.type === "content_block_delta" &&
-      event.delta.type === "text_delta"
-    ) {
-      controller.enqueue(
-        encoder.encode(
-          JSON.stringify({ type: "text", content: event.delta.text }) + "\n"
-        )
-      );
-    } else if (event.type === "content_block_start") {
-      if (event.content_block.type === "tool_use") {
-        controller.enqueue(
-          encoder.encode(
-            JSON.stringify({
-              type: "tool_use",
-              tool: event.content_block.name,
-              id: event.content_block.id,
-            }) + "\n"
-          )
-        );
-      }
-    }
-  }
-
-  // Handle complete assistant messages (fallback)
-  if (message.type === "assistant" && "content" in message) {
-    const content = message.content as Array<{ type: string; text?: string }>;
-    for (const block of content) {
-      if (block.type === "text" && block.text) {
-        controller.enqueue(
-          encoder.encode(
-            JSON.stringify({ type: "text", content: block.text }) + "\n"
-          )
-        );
+  // Handle assistant messages with tool_use (during agentic loop)
+  // Structure: { type: "assistant", message: { content: [...] } }
+  if (message.type === "assistant" && "message" in message) {
+    const msg = message.message as { content?: Array<{ type: string; text?: string; name?: string; id?: string }> };
+    if (msg.content) {
+      for (const block of msg.content) {
+        if (block.type === "tool_use" && block.name) {
+          controller.enqueue(
+            encoder.encode(
+              JSON.stringify({
+                type: "tool_use",
+                tool: block.name,
+                id: block.id,
+              }) + "\n"
+            )
+          );
+        } else if (block.type === "text" && block.text) {
+          controller.enqueue(
+            encoder.encode(
+              JSON.stringify({ type: "text", content: block.text }) + "\n"
+            )
+          );
+        }
       }
     }
   }
