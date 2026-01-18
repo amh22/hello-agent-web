@@ -102,6 +102,22 @@ These serve different purposes:
 
 Our system prompt is minimal - it establishes identity and frame but gives no project knowledge. The agent still discovers that this is a Next.js app, uses Tailwind, etc.
 
+### Programmatic vs Non-Programmatic Contexts
+
+How you provide these depends on your setup:
+
+| Context | Identity/Frame | Project Knowledge |
+|---------|----------------|-------------------|
+| **API/SDK (programmatic)** | `systemPrompt` parameter | `CLAUDE.md` file (optional) |
+| **Claude Code CLI** | `CLAUDE.md` serves both purposes | `CLAUDE.md` |
+| **Claude.ai web** | Project custom instructions | Project custom instructions |
+
+When using the SDK programmatically (like this project), we can be precise:
+- `systemPrompt` → minimal identity/frame only
+- `CLAUDE.md` → omit entirely for autonomous discovery
+
+When using Claude Code directly without programmatic control, `CLAUDE.md` serves both purposes. You'd have to decide what balance of identity vs knowledge to include.
+
 ### What is CLAUDE.md?
 
 A `CLAUDE.md` file is a convention where project knowledge (architecture, key files, conventions) is provided upfront to Claude. It's automatically read and included in the context.
