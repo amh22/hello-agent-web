@@ -84,3 +84,60 @@ Instead of telling the agent what tools it has, we tell it that the codebase def
 4. Can cite the specific line of code as evidence
 
 The agent genuinely discovers its own nature rather than reciting what it was told. This is the only approach consistent with building a truly autonomous system.
+
+---
+
+## Why We Don't Use CLAUDE.md
+
+### systemPrompt vs CLAUDE.md
+
+These serve different purposes:
+
+| | systemPrompt | CLAUDE.md |
+|-|--------------|-----------|
+| **Purpose** | Agent identity and frame | Project/domain knowledge |
+| **Answers** | "Who/what are you?" | "What is this codebase?" |
+| **Example** | "You are an autonomous agent. This code defines you." | "This is a Next.js app. Key files are X, Y, Z." |
+| **Scope** | Behavioral frame | Pre-loaded answers |
+
+Our system prompt is minimal - it establishes identity and frame but gives no project knowledge. The agent still discovers that this is a Next.js app, uses Tailwind, etc.
+
+### What is CLAUDE.md?
+
+A `CLAUDE.md` file is a convention where project knowledge (architecture, key files, conventions) is provided upfront to Claude. It's automatically read and included in the context.
+
+### Why We Chose Not to Use It
+
+For this project, adding a `CLAUDE.md` would undermine the core premise.
+
+**The same principle applies:** If the agent needs to be told about the project architecture, it's not autonomously exploring - it's reciting pre-loaded context.
+
+| With CLAUDE.md | Without CLAUDE.md |
+|----------------|-------------------|
+| Agent "knows" the architecture | Agent discovers the architecture |
+| Faster responses, fewer tokens | More exploration, genuine discovery |
+| Scripted knowledge | Autonomous understanding |
+
+### When CLAUDE.md Makes Sense
+
+`CLAUDE.md` is valuable for:
+- Production agents where efficiency matters
+- Projects where discovery isn't the point
+- Complex codebases where some guidance prevents wasted exploration
+
+### When to Skip It
+
+Skip `CLAUDE.md` when:
+- The agent's ability to explore and discover IS the point
+- You want to demonstrate genuine autonomous capabilities
+- Pre-loaded context would undermine the purpose
+
+### The Consistency Test
+
+Ask yourself: *"If I have to tell the agent about X, is it really autonomous with respect to X?"*
+
+- Capabilities → Don't tell, let it discover from source code
+- Project architecture → Don't tell, let it discover from exploration
+- Its own nature → Don't tell, let it discover from self-examination
+
+For a truly autonomous agent, the answer should be consistent across all dimensions.
