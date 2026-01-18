@@ -107,12 +107,14 @@ Deploy to Vercel:
 | `ANTHROPIC_API_KEY` | Yes | - | Your Anthropic API key |
 | `DEMO_PASSWORD` | Yes | - | Password required to access the chat |
 | `MAX_BUDGET_USD` | No | 1.00 | Maximum API cost per query in USD |
+| `RATE_LIMIT_MAX_REQUESTS` | No | 5 | Max requests per minute per IP |
 
 ### Security Notes
 
 - Password verification uses timing-safe comparison to prevent timing attacks
 - Authentication is stored in `sessionStorage` (cleared when tab closes)
-- The `maxBudgetUsd` option prevents runaway API costs
+- Per-query budget limit prevents runaway API costs
+- Rate limiting (5 req/min per IP) prevents abuse and DDoS-style attacks
 
 ## License
 

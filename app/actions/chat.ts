@@ -1,6 +1,7 @@
 "use server";
 
 import { query, type SDKMessage } from "@anthropic-ai/claude-agent-sdk";
+import { headers } from "next/headers";
 
 export interface ChatMessage {
   role: "user" | "assistant";
@@ -13,24 +14,93 @@ const allowedTools = ["Read", "Glob", "Grep"];
 // Get max budget from environment, default to $1.00
 const maxBudgetUsd = parseFloat(process.env.MAX_BUDGET_USD || "1.00");
 
+// Rate limiting configuration (configurable via env)
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute window
+const RATE_LIMIT_MAX_REQUESTS = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || "5"); // Default: 5 requests per minute per IP
+
+// In-memory rate limit store (resets on server restart)
+const rateLimitStore = new Map<string, { timestamps: number[] }>();
+
+function checkRateLimit(ip: string): { allowed: boolean; retryAfterMs?: number } {
+  const now = Date.now();
+  const windowStart = now - RATE_LIMIT_WINDOW_MS;
+
+  // Get or create entry for this IP
+  let entry = rateLimitStore.get(ip);
+  if (!entry) {
+    entry = { timestamps: [] };
+    rateLimitStore.set(ip, entry);
+  }
+
+  // Remove timestamps outside the window
+  entry.timestamps = entry.timestamps.filter((ts) => ts > windowStart);
+
+  // Check if rate limited
+  if (entry.timestamps.length >= RATE_LIMIT_MAX_REQUESTS) {
+    const oldestInWindow = entry.timestamps[0];
+    const retryAfterMs = oldestInWindow + RATE_LIMIT_WINDOW_MS - now;
+    return { allowed: false, retryAfterMs };
+  }
+
+  // Add current request timestamp
+  entry.timestamps.push(now);
+  return { allowed: true };
+}
+
+async function getClientIP(): Promise<string> {
+  const headersList = await headers();
+  // Check common headers for real IP (behind proxies/load balancers)
+  return (
+    headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    headersList.get("x-real-ip") ||
+    headersList.get("cf-connecting-ip") || // Cloudflare
+    "unknown"
+  );
+}
+
 // Minimal system prompt - let the agent discover autonomously
 const systemPrompt = `You are an autonomous agent that can explore and explain this codebase.
 This codebase defines you - the constraints in the source code apply to you.
 Answer questions by examining the actual source files.`;
 
 export async function chat(messages: ChatMessage[]): Promise<ReadableStream> {
+  const encoder = new TextEncoder();
+
+  // Check rate limit
+  const clientIP = await getClientIP();
+  const rateLimitResult = checkRateLimit(clientIP);
+
+  if (!rateLimitResult.allowed) {
+    const retryAfterSec = Math.ceil((rateLimitResult.retryAfterMs || 0) / 1000);
+    console.log("[chat] Rate limited:", { clientIP, retryAfterSec });
+
+    // Return a stream with just the error
+    return new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            JSON.stringify({
+              type: "error",
+              content: `Too many requests. Please wait ${retryAfterSec} seconds before trying again.`,
+            }) + "\n"
+          )
+        );
+        controller.close();
+      },
+    });
+  }
+
   const projectRoot = process.cwd();
   const latestMessage = messages[messages.length - 1].content;
 
   console.log("[chat] Starting query:", {
     cwd: projectRoot,
+    clientIP,
     promptLength: latestMessage.length,
     maxBudgetUsd,
   });
 
   // Create a ReadableStream to stream the response to the client
-  const encoder = new TextEncoder();
-
   const stream = new ReadableStream({
     async start(controller) {
       try {
