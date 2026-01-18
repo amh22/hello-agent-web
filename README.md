@@ -12,6 +12,7 @@ A self-referential AI demo: a web chat interface that lets users ask an AI agent
 - Clean, minimal UI with dark mode support
 - Password protection for deployed demos
 - Configurable API budget limits
+- **Cost visibility**: Collapsible usage details showing cost, tokens, and model breakdown per query
 
 ## Tech Stack
 
@@ -48,7 +49,7 @@ pnpm install
 ```bash
 ANTHROPIC_API_KEY=your-api-key-here
 DEMO_PASSWORD=your-secret-password   # Required for access
-MAX_BUDGET_USD=0.10                  # Optional, defaults to $0.10
+MAX_BUDGET_USD=1.00                  # Optional, defaults to $1.00
 ```
 
 4. Start the development server:
@@ -96,7 +97,7 @@ Deploy to Vercel:
 3. Set environment variables in Vercel:
    - `ANTHROPIC_API_KEY` - Your Anthropic API key
    - `DEMO_PASSWORD` - Password to protect the demo
-   - `MAX_BUDGET_USD` - Optional cost limit per query (default: 0.10)
+   - `MAX_BUDGET_USD` - Optional cost limit per query (default: 1.00)
 4. Deploy
 
 ### Environment Variables
@@ -105,7 +106,7 @@ Deploy to Vercel:
 |----------|----------|---------|-------------|
 | `ANTHROPIC_API_KEY` | Yes | - | Your Anthropic API key |
 | `DEMO_PASSWORD` | Yes | - | Password required to access the chat |
-| `MAX_BUDGET_USD` | No | 0.10 | Maximum API cost per query in USD |
+| `MAX_BUDGET_USD` | No | 1.00 | Maximum API cost per query in USD |
 
 ### Security Notes
 

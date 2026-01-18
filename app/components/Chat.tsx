@@ -2,7 +2,12 @@
 
 import { useState, useRef, useEffect, FormEvent } from "react";
 import { Message } from "./Message";
+import { UsageDetails, type UsageData } from "./UsageDetails";
 import { chat, type ChatMessage } from "../actions/chat";
+
+interface MessageWithUsage extends ChatMessage {
+  usage?: UsageData;
+}
 
 const SUGGESTED_QUESTIONS = [
   "How does the streaming work in this app?",
@@ -12,7 +17,7 @@ const SUGGESTED_QUESTIONS = [
 ];
 
 export function Chat() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<MessageWithUsage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
@@ -44,6 +49,7 @@ export function Chat() {
       const reader = stream.getReader();
       const decoder = new TextDecoder();
       let fullContent = "";
+      let capturedUsage: UsageData | null = null;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -60,6 +66,14 @@ export function Chat() {
               setStreamingContent(fullContent);
             } else if (event.type === "tool_use") {
               setCurrentTool(event.tool);
+            } else if (event.type === "usage") {
+              capturedUsage = event.data;
+            } else if (event.type === "result") {
+              // Final result from SDK - use if we didn't get streaming text
+              if (!fullContent && event.content) {
+                fullContent = event.content;
+                setStreamingContent(fullContent);
+              }
             } else if (event.type === "error") {
               fullContent += `\n\nError: ${event.content}`;
               setStreamingContent(fullContent);
@@ -70,11 +84,11 @@ export function Chat() {
         }
       }
 
-      // Add the complete assistant message
+      // Add the complete assistant message with usage data
       if (fullContent) {
         setMessages((prev) => [
           ...prev,
-          { role: "assistant", content: fullContent },
+          { role: "assistant", content: fullContent, usage: capturedUsage ?? undefined },
         ]);
       }
     } catch (error) {
@@ -121,7 +135,16 @@ export function Chat() {
         )}
 
         {messages.map((message, index) => (
-          <Message key={index} role={message.role} content={message.content} />
+          <div key={index}>
+            <Message role={message.role} content={message.content} />
+            {message.role === "assistant" && message.usage && (
+              <div className="flex justify-start mb-4 -mt-2">
+                <div className="max-w-[80%] px-4">
+                  <UsageDetails usage={message.usage} />
+                </div>
+              </div>
+            )}
+          </div>
         ))}
 
         {/* Streaming message */}
