@@ -10,8 +10,13 @@ export interface ChatMessage {
 // Define allowed tools for read-only codebase exploration
 const allowedTools = ["Read", "Glob", "Grep"];
 
-// Get max budget from environment, default to $0.10
-const maxBudgetUsd = parseFloat(process.env.MAX_BUDGET_USD || "0.10");
+// Get max budget from environment, default to $1.00
+const maxBudgetUsd = parseFloat(process.env.MAX_BUDGET_USD || "1.00");
+
+// Minimal system prompt - let the agent discover autonomously
+const systemPrompt = `You are an autonomous agent that can explore and explain this codebase.
+This codebase defines you - the constraints in the source code apply to you.
+Answer questions by examining the actual source files.`;
 
 export async function chat(messages: ChatMessage[]): Promise<ReadableStream> {
   const projectRoot = process.cwd();
@@ -34,6 +39,7 @@ export async function chat(messages: ChatMessage[]): Promise<ReadableStream> {
           prompt: latestMessage,
           options: {
             cwd: projectRoot,
+            systemPrompt,
             maxTurns: 10,
             maxBudgetUsd,
             allowedTools,
