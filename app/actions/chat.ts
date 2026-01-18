@@ -10,6 +10,9 @@ export interface ChatMessage {
 // Define allowed tools for read-only codebase exploration
 const allowedTools = ["Read", "Glob", "Grep"];
 
+// Get max budget from environment, default to $0.10
+const maxBudgetUsd = parseFloat(process.env.MAX_BUDGET_USD || "0.10");
+
 export async function chat(messages: ChatMessage[]): Promise<ReadableStream> {
   const projectRoot = process.cwd();
   const latestMessage = messages[messages.length - 1].content;
@@ -26,6 +29,7 @@ export async function chat(messages: ChatMessage[]): Promise<ReadableStream> {
           options: {
             cwd: projectRoot,
             maxTurns: 10,
+            maxBudgetUsd,
             allowedTools,
             // Auto-approve only our allowed read-only tools
             canUseTool: async (toolName: string) => {

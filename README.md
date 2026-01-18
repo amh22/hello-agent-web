@@ -10,6 +10,8 @@ A self-referential AI demo: a web chat interface that lets users ask an AI agent
 - AI agent with read-only access to its own codebase
 - Tool usage indicators (Glob, Grep, Read)
 - Clean, minimal UI with dark mode support
+- Password protection for deployed demos
+- Configurable API budget limits
 
 ## Tech Stack
 
@@ -41,10 +43,12 @@ cd hello-agent-web
 pnpm install
 ```
 
-3. Create `.env.local` with your API key:
+3. Create `.env.local` with your configuration:
 
 ```bash
 ANTHROPIC_API_KEY=your-api-key-here
+DEMO_PASSWORD=your-secret-password   # Required for access
+MAX_BUDGET_USD=0.10                  # Optional, defaults to $0.10
 ```
 
 4. Start the development server:
@@ -89,8 +93,25 @@ Deploy to Vercel:
 
 1. Push to GitHub
 2. Connect repository to Vercel
-3. Set `ANTHROPIC_API_KEY` in environment variables
+3. Set environment variables in Vercel:
+   - `ANTHROPIC_API_KEY` - Your Anthropic API key
+   - `DEMO_PASSWORD` - Password to protect the demo
+   - `MAX_BUDGET_USD` - Optional cost limit per query (default: 0.10)
 4. Deploy
+
+### Environment Variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `ANTHROPIC_API_KEY` | Yes | - | Your Anthropic API key |
+| `DEMO_PASSWORD` | Yes | - | Password required to access the chat |
+| `MAX_BUDGET_USD` | No | 0.10 | Maximum API cost per query in USD |
+
+### Security Notes
+
+- Password verification uses timing-safe comparison to prevent timing attacks
+- Authentication is stored in `sessionStorage` (cleared when tab closes)
+- The `maxBudgetUsd` option prevents runaway API costs
 
 ## License
 

@@ -1,4 +1,5 @@
 import { Chat } from "./components/Chat";
+import { PasswordGate } from "./components/PasswordGate";
 
 export default function Home() {
   return (
@@ -17,8 +18,10 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Chat Interface */}
-        <Chat />
+        {/* Chat Interface - Protected by Password Gate */}
+        <PasswordGate>
+          <Chat />
+        </PasswordGate>
 
         {/* Footer */}
         <footer className="mt-12 text-center text-sm text-zinc-400 dark:text-zinc-600">
