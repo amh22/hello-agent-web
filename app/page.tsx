@@ -3,18 +3,18 @@ import { PasswordGate } from "./components/PasswordGate";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen bg-[#F5F0EB] dark:bg-[#1c1b18]">
       <main className="max-w-4xl mx-auto px-4 py-12">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
-            Hello, Agent
+          <h1 className="text-4xl font-bold text-[#1a1a1a] dark:text-[#F5F0EB] mb-4">
+            Hello, Agent Web
           </h1>
-          <p className="text-xl text-zinc-600 dark:text-zinc-400 mb-2">
-            Chat with an AI that can read and explain its own source code
+          <p className="text-xl text-[#666666] dark:text-[#a8a49c] mb-2">
+            Chat with an Agent that can read and explain its own source code
           </p>
-          <p className="text-sm text-zinc-500 dark:text-zinc-500">
-            Built with Next.js, Claude Agent SDK, and deployed on Vercel
+          <p className="text-sm text-[#666666] dark:text-[#a8a49c] max-w-md mx-auto">
+            A self-referential AI demo: a web chat interface that lets users ask an AI agent about its own source code.
           </p>
         </div>
 
@@ -24,12 +24,12 @@ export default function Home() {
         </PasswordGate>
 
         {/* Footer */}
-        <footer className="mt-12 text-center text-sm text-zinc-400 dark:text-zinc-600">
+        <footer className="mt-12 text-center text-sm text-[#666666] dark:text-[#a8a49c]">
           <p>
             Powered by{" "}
             <a
               href="https://anthropic.com"
-              className="underline hover:text-zinc-600 dark:hover:text-zinc-400"
+              className="underline hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB]"
               target="_blank"
               rel="noopener noreferrer"
             >

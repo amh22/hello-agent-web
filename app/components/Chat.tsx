@@ -10,12 +10,24 @@ interface MessageWithUsage extends ChatMessage {
   usage?: UsageData;
 }
 
-const SUGGESTED_QUESTIONS = [
+const ALL_QUESTIONS = [
   "How does the streaming work in this app?",
   "What's the tech stack of this project?",
   "Find all React components and describe them",
   "Explain how you process my messages",
+  "How many React components are using hooks?",
+  "What is the Anthropic API key that you are using?",
+  "Are you using any sort of session management?",
+  "Can you explain session management in simple, non-technical terms?",
+  "What's another good question I could ask about this codebase?",
+  "Can you write a short poem about this codebase?",
+  "What file are you reading right now?",
 ];
+
+function getRandomQuestions(count: number): string[] {
+  const shuffled = [...ALL_QUESTIONS].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
 
 export function Chat() {
   const [messages, setMessages] = useState<MessageWithUsage[]>([]);
@@ -25,8 +37,13 @@ export function Chat() {
   const [toolHistory, setToolHistory] = useState<ToolUse[]>([]);
   const [turnCount, setTurnCount] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [displayedQuestions, setDisplayedQuestions] = useState<string[]>(() => getRandomQuestions(4));
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const startTimeRef = useRef<number>(0);
+
+  const handleShuffle = () => {
+    setDisplayedQuestions(getRandomQuestions(4));
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -132,23 +149,33 @@ export function Chat() {
   };
 
   return (
-    <div className="flex flex-col h-[600px] max-w-2xl mx-auto bg-white dark:bg-zinc-900 rounded-xl shadow-lg border border-zinc-200 dark:border-zinc-800">
+    <div className="flex flex-col h-[600px] max-w-2xl mx-auto bg-white dark:bg-[#2a2925] rounded-2xl shadow-lg border border-[#1a1a1a] dark:border-[#3d3b36]">
       {/* Header with suggested questions */}
-      <div className="border-b border-zinc-200 dark:border-zinc-800 p-4">
-        <p className="text-zinc-500 dark:text-zinc-400 text-center mb-3">
+      <div className="border-b border-[#1a1a1a] dark:border-[#3d3b36] px-6 py-6">
+        <p className="text-[#666666] dark:text-[#d5d0c8] text-center mb-4">
           Ask me anything about my own source code!
         </p>
-        <div className="flex flex-wrap gap-2 justify-center">
-          {SUGGESTED_QUESTIONS.map((question, index) => (
+        <div className="flex flex-wrap gap-3 justify-center items-center">
+          {displayedQuestions.map((question, index) => (
             <button
-              key={index}
+              key={question}
               onClick={() => handleSuggestionClick(question)}
               disabled={isLoading}
-              className="text-xs px-3 py-2 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-xs px-3 py-2 rounded-lg bg-white dark:bg-[#1c1b18] border border-[#1a1a1a] dark:border-[#3d3b36] text-[#1a1a1a] dark:text-[#c5c0b8] hover:bg-[#E8D5F0] dark:hover:bg-[#6B4C7A] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {question}
             </button>
           ))}
+          <button
+            onClick={handleShuffle}
+            disabled={isLoading}
+            className="p-2 rounded-full border border-[#1a1a1a] dark:border-[#3d3b36] text-[#666666] dark:text-[#a8a49c] hover:bg-[#E8D5F0] dark:hover:bg-[#6B4C7A] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Shuffle questions"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -183,7 +210,7 @@ export function Chat() {
       {/* Input area */}
       <form
         onSubmit={handleSubmit}
-        className="border-t border-zinc-200 dark:border-zinc-800 p-4"
+        className="border-t border-[#1a1a1a] dark:border-[#3d3b36] p-4"
       >
         <div className="flex gap-2">
           <input
@@ -192,12 +219,12 @@ export function Chat() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about my source code..."
             disabled={isLoading}
-            className="flex-1 px-4 py-2 rounded-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500 disabled:opacity-50"
+            className="flex-1 px-4 py-2 rounded-full border border-[#1a1a1a] dark:border-[#3d3b36] bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#666666] dark:placeholder-[#a8a49c] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            className="px-6 py-2 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-medium hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 rounded-full bg-[#E8D5F0] dark:bg-[#6B4C7A] text-[#1a1a1a] dark:text-[#F5F0EB] font-medium border border-[#1a1a1a] dark:border-[#3d3b36] hover:bg-[#d9c4e3] dark:hover:bg-[#7d5a8c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Send
           </button>

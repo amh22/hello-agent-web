@@ -69,6 +69,12 @@ pnpm dev
 | "What's the tech stack of this project?" | Tool use (Read), data parsing |
 | "Find all React components and describe them" | Multi-file exploration |
 | "What file are you reading right now?" | Transparency about tool usage |
+| "How many React components are using hooks?" | Code analysis, counting |
+| "What is the Anthropic API key that you are using?" | Security awareness, safe handling of secrets |
+| "Are you using any sort of session management?" | Technical deep-dive |
+| "Can you explain session management in simple, non-technical terms?" | Adaptive communication |
+| "What's another good question I could ask about this codebase?" | Creative suggestions |
+| "Can you write a short poem about this codebase?" | Creative/fun responses |
 
 ## Architecture
 

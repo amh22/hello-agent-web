@@ -52,10 +52,10 @@ export function UsageDetails({ usage }: UsageDetailsProps) {
   };
 
   return (
-    <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-700">
+    <div className="mt-3 pt-3 border-t border-[#1a1a1a] dark:border-[#3d3b36]">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+        className="flex items-center gap-1 text-xs text-[#666666] dark:text-[#a8a49c] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors"
       >
         <svg
           className={`w-3 h-3 transition-transform ${isExpanded ? "rotate-90" : ""}`}
@@ -77,24 +77,24 @@ export function UsageDetails({ usage }: UsageDetailsProps) {
       </button>
 
       {isExpanded && (
-        <div className="mt-2 text-xs text-zinc-600 dark:text-zinc-400 space-y-2">
+        <div className="mt-2 text-xs text-[#666666] dark:text-[#a8a49c] space-y-2">
           {/* Summary stats */}
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             <span>
-              <strong>Total Cost:</strong> {formatCost(usage.total_cost_usd)}
+              <strong className="text-[#1a1a1a] dark:text-[#F5F0EB]">Total Cost:</strong> {formatCost(usage.total_cost_usd)}
             </span>
             <span>
-              <strong>Duration:</strong> {formatDuration(usage.duration_ms)}
+              <strong className="text-[#1a1a1a] dark:text-[#F5F0EB]">Duration:</strong> {formatDuration(usage.duration_ms)}
             </span>
             <span>
-              <strong>Turns:</strong> {formatNumber(usage.num_turns)}
+              <strong className="text-[#1a1a1a] dark:text-[#F5F0EB]">Turns:</strong> {formatNumber(usage.num_turns)}
             </span>
           </div>
 
           {/* Token usage - calculated from modelUsage for accurate totals */}
           {usage.modelUsage && Object.keys(usage.modelUsage).length > 0 && (
-            <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded p-2">
-              <div className="font-medium mb-1">Token Usage</div>
+            <div className="bg-[#F5F0EB] dark:bg-[#1c1b18] rounded-xl border border-[#1a1a1a] dark:border-[#3d3b36] p-2">
+              <div className="font-medium mb-1 text-[#1a1a1a] dark:text-[#F5F0EB]">Token Usage</div>
               <div className="flex flex-wrap gap-x-4 gap-y-1">
                 {(() => {
                   const totals = Object.values(usage.modelUsage!).reduce(
@@ -125,16 +125,16 @@ export function UsageDetails({ usage }: UsageDetailsProps) {
 
           {/* Model breakdown */}
           {usage.modelUsage && Object.keys(usage.modelUsage).length > 0 && (
-            <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded p-2">
-              <div className="font-medium mb-1">Models Used</div>
+            <div className="bg-[#F5F0EB] dark:bg-[#1c1b18] rounded-xl border border-[#1a1a1a] dark:border-[#3d3b36] p-2">
+              <div className="font-medium mb-1 text-[#1a1a1a] dark:text-[#F5F0EB]">Models Used</div>
               <div className="space-y-1">
                 {Object.entries(usage.modelUsage).map(([model, stats]) => (
                   <div key={model} className="flex flex-wrap gap-x-3 gap-y-1">
-                    <span className="font-mono text-zinc-700 dark:text-zinc-300">
+                    <span className="font-mono text-[#1a1a1a] dark:text-[#F5F0EB]">
                       {model}
                     </span>
                     <span>{formatCost(stats.costUSD)}</span>
-                    <span className="text-zinc-500">
+                    <span className="text-[#666666] dark:text-[#a8a49c]">
                       ({formatNumber(stats.inputTokens)} in /{" "}
                       {formatNumber(stats.outputTokens)} out)
                     </span>
@@ -159,7 +159,7 @@ function RawDetails({ usage }: { usage: UsageData }) {
     <div className="pt-2">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+        className="flex items-center gap-1 text-xs text-[#666666] dark:text-[#a8a49c] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors"
       >
         <svg
           className={`w-3 h-3 transition-transform ${isExpanded ? "rotate-90" : ""}`}
@@ -178,7 +178,7 @@ function RawDetails({ usage }: { usage: UsageData }) {
       </button>
 
       {isExpanded && (
-        <pre className="mt-2 p-2 bg-zinc-100 dark:bg-zinc-900 rounded text-[10px] overflow-x-auto max-h-64 overflow-y-auto">
+        <pre className="mt-2 p-2 bg-[#F5F0EB] dark:bg-[#1c1b18] border border-[#1a1a1a] dark:border-[#3d3b36] rounded-xl text-[10px] overflow-x-auto max-h-64 overflow-y-auto text-[#1a1a1a] dark:text-[#F5F0EB]">
           {JSON.stringify(usage, null, 2)}
         </pre>
       )}

@@ -13,14 +13,14 @@ interface ActivityPanelProps {
 
 export function ActivityPanel({ toolHistory, turnCount, elapsedTime }: ActivityPanelProps) {
   return (
-    <div className="bg-zinc-100 dark:bg-zinc-800 rounded-lg p-3 mb-4">
+    <div className="bg-white dark:bg-[#2a2925] rounded-xl border border-[#1a1a1a] dark:border-[#3d3b36] p-3 mb-4">
       {/* Header with stats */}
       <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-300">
-          <span className="inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+        <div className="flex items-center gap-2 text-xs text-[#1a1a1a] dark:text-[#F5F0EB]">
+          <span className="inline-block w-2 h-2 bg-[#6B4C7A] rounded-full animate-pulse" />
           <span className="font-medium">Agent working...</span>
         </div>
-        <div className="flex items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400 font-mono">
+        <div className="flex items-center gap-3 text-xs text-[#666666] dark:text-[#a8a49c] font-mono">
           {turnCount > 0 && <span>Turn {turnCount}</span>}
           {toolHistory.length > 0 && <span>{toolHistory.length} tools</span>}
           <span>{elapsedTime}s</span>
@@ -33,24 +33,24 @@ export function ActivityPanel({ toolHistory, turnCount, elapsedTime }: ActivityP
           {toolHistory.map((item, index) => (
             <div
               key={index}
-              className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400"
+              className="flex items-center gap-2 text-xs text-[#666666] dark:text-[#a8a49c]"
             >
-              <span className="text-green-500">✓</span>
+              <span className="text-[#6B4C7A]">✓</span>
               <span>{item.tool}</span>
             </div>
           ))}
         </div>
       ) : (
-        <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+        <div className="flex items-center gap-2 text-xs text-[#666666] dark:text-[#a8a49c]">
           <span
-            className="inline-block w-1.5 h-1.5 bg-zinc-400 rounded-full animate-pulse"
+            className="inline-block w-1.5 h-1.5 bg-[#666666] dark:bg-[#a8a49c] rounded-full animate-pulse"
           />
           <span
-            className="inline-block w-1.5 h-1.5 bg-zinc-400 rounded-full animate-pulse"
+            className="inline-block w-1.5 h-1.5 bg-[#666666] dark:bg-[#a8a49c] rounded-full animate-pulse"
             style={{ animationDelay: "150ms" }}
           />
           <span
-            className="inline-block w-1.5 h-1.5 bg-zinc-400 rounded-full animate-pulse"
+            className="inline-block w-1.5 h-1.5 bg-[#666666] dark:bg-[#a8a49c] rounded-full animate-pulse"
             style={{ animationDelay: "300ms" }}
           />
           <span className="ml-1">Starting...</span>
