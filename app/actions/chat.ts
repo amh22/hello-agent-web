@@ -30,13 +30,14 @@ function validateConfig(): void {
   }
 }
 
-export async function chat(messages: ChatMessage[]): Promise<ReadableStream> {
+export async function chat(messages: ChatMessage[], repoUrl?: string): Promise<ReadableStream> {
   const encoder = new TextEncoder();
   const latestMessage = messages[messages.length - 1].content;
 
   console.log("[chat] Forwarding request to worker:", {
     workerUrl: WORKER_URL,
     promptLength: latestMessage.length,
+    repoUrl: repoUrl || "(default)",
   });
 
   // Validate configuration
@@ -56,6 +57,7 @@ export async function chat(messages: ChatMessage[]): Promise<ReadableStream> {
       },
       body: JSON.stringify({
         prompt: latestMessage,
+        ...(repoUrl && { repoUrl }),
       }),
     });
 

@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Hello Agent - Self-Aware AI Demo",
+  title: "Hello, Agent - AI Codebase Explorer",
   description:
-    "Chat with an AI agent that can read and explain its own source code. Built with Next.js and Claude Agent SDK.",
+    "Chat with an AI agent that can read and explain a codebase. Built with Next.js and Claude Agent SDK.",
 };
 
 export default function RootLayout({

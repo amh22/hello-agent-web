@@ -199,3 +199,81 @@ The Agent SDK doesn't just call an API - it orchestrates a local process (Claude
 - Worker implementation: `hello-agent-web-worker/` repo
 - Frontend integration: `app/actions/chat.ts` (calls worker API)
 - Deep dive: `agentic-patterns/learning-log/agent-sdk-hosting.md`
+
+---
+
+## Exploring Any Public GitHub Repo
+
+### The Feature
+
+Users can point the agent at any public GitHub repository, not just the app's own codebase. The UI provides two input fields (owner + repo name) that construct a GitHub URL.
+
+### Why the Same System Prompt Works
+
+The system prompt is intentionally generic:
+
+```typescript
+const systemPrompt = `You are an autonomous agent that can explore and explain this codebase.
+This codebase defines you - the constraints in the source code apply to you.
+Answer questions by examining the actual source files.`;
+```
+
+This works for both scenarios:
+
+| Exploring | What Happens |
+|-----------|--------------|
+| **hello-agent-web** (default) | Agent finds `allowedTools` array, realizes it defines itself |
+| **Any other repo** | Agent explores and explains; no self-referential constraints to find |
+
+The "self-awareness magic" only activates when the codebase actually contains code that defines the agent. For other repos, the prompt just means "explore and explain" - it doesn't break anything.
+
+### Why We Don't Need Separate Modes
+
+Initially we considered having distinct modes ("Explore myself" vs "Explore a repo") with different system prompts. But since the agent behaves the same regardless - it explores, finds what it finds, and explains - separate modes add complexity without benefit.
+
+---
+
+## Security: Shell Commands vs Agent SDK Tools
+
+### Two Different Layers
+
+There are two distinct execution contexts in our architecture:
+
+```
+Worker                              Sandbox Container
+───────                             ─────────────────
+sandbox.exec(`git clone ...`)   ──► Raw shell command
+sandbox.exec(`node agent.js`)   ──► Raw shell command
+                                          │
+                                          ▼
+                                    Agent SDK query()
+                                          │
+                                          ▼
+                                    Read, Glob, Grep tools
+                                    (protected by allowedTools)
+```
+
+### What's Protected by allowedTools
+
+The Agent SDK's `allowedTools` and `canUseTool` callback protect **tool execution inside the agentic loop**. If the agent tries to use `Bash`, `Edit`, or `Write`, the SDK denies it. This is automatic and robust.
+
+### What's NOT Protected
+
+The worker's `sandbox.exec()` calls are **raw shell commands** that bypass the Agent SDK entirely. These run before the Agent SDK is even invoked.
+
+### Why Sandbox Isolation Isn't Enough
+
+The sandbox is an ephemeral container destroyed after each request. It can't affect other users, the GitHub repo, or the host system. However, the container has access to secrets (like API keys) passed via environment variables.
+
+The real risks from command injection aren't about damaging the ephemeral container - they're about **credential exfiltration** and **resource abuse**.
+
+### Our Protection
+
+We use two separate input fields (owner + repo) instead of accepting a full URL. This lets us:
+- Construct the URL ourselves from validated components
+- Apply strict validation to each field (alphanumeric + limited special characters)
+- Validate on both frontend (UX) and backend (security)
+
+### Key Insight
+
+**The Agent SDK's security model only applies to agent tool execution.** Any shell commands you run to set up the environment need their own input validation. Don't assume `allowedTools` protects your infrastructure code - and don't assume sandbox isolation is sufficient when secrets are present.

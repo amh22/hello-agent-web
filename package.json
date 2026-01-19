@@ -2,7 +2,7 @@
   "name": "hello-agent-web",
   "version": "0.1.0",
   "private": true,
-  "description": "A self-referential AI demo: a web chat interface that lets users ask an AI agent about its own source code.",
+  "description": "An AI codebase explorer. By default, the agent explores its own source code - or point it at any public GitHub repo.",
   "author": "Andrew Henry",
   "license": "MIT",
   "scripts": {

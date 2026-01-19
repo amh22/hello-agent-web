@@ -8,13 +8,13 @@ export default function Home() {
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-[#1a1a1a] dark:text-[#F5F0EB] mb-4">
-            Hello, Agent Web
+            Hello, Agent
           </h1>
           <p className="text-xl text-[#666666] dark:text-[#a8a49c] mb-2">
-            Chat with an Agent that can read and explain its own source code
+            Chat with an Agent that can read and explain a codebase
           </p>
           <p className="text-sm text-[#666666] dark:text-[#a8a49c] max-w-md mx-auto">
-            A self-referential AI demo: a web chat interface that lets users ask an AI agent about its own source code.
+            An AI codebase explorer. By default, the agent explores its own source code - or point it at any public GitHub repo.
           </p>
         </div>
 

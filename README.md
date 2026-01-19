@@ -1,13 +1,13 @@
-# Hello Agent
+# Hello, Agent
 
-A self-referential AI demo: a web chat interface that lets users ask an AI agent about its own source code.
+An AI codebase explorer. By default, the agent explores its own source code - or point it at any public GitHub repo.
 
-**Demo pitch**: "Chat with an AI that can read and explain its own source code"
+**Demo pitch**: "Chat with an AI that can read and explain a codebase"
 
 ## Features
 
 - Real-time streaming responses
-- AI agent with read-only access to its own codebase
+- AI agent with read-only access to any public GitHub repo
 - Tool usage indicators (Glob, Grep, Read)
 - Clean, minimal UI with dark mode support
 - Password protection for deployed demos

@@ -29,9 +29,34 @@ function getRandomQuestions(count: number): string[] {
   return shuffled.slice(0, count);
 }
 
+// Validation patterns for GitHub owner and repo names
+const OWNER_PATTERN = /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$/;
+const REPO_PATTERN = /^[a-zA-Z0-9._-]+$/;
+
+// Default repo (this app's own codebase)
+const DEFAULT_OWNER = "amh22";
+const DEFAULT_REPO = "hello-agent-web";
+
+function validateOwner(owner: string): string | null {
+  if (!owner.trim()) return "Owner is required";
+  if (owner.length > 39) return "Owner name too long";
+  if (!OWNER_PATTERN.test(owner)) return "Invalid owner name";
+  return null;
+}
+
+function validateRepo(repo: string): string | null {
+  if (!repo.trim()) return "Repo is required";
+  if (repo.length > 100) return "Repo name too long";
+  if (!REPO_PATTERN.test(repo)) return "Invalid repo name";
+  return null;
+}
+
 export function Chat() {
   const [messages, setMessages] = useState<MessageWithUsage[]>([]);
   const [input, setInput] = useState("");
+  const [repoOwner, setRepoOwner] = useState(DEFAULT_OWNER);
+  const [repoName, setRepoName] = useState(DEFAULT_REPO);
+  const [repoError, setRepoError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
   const [toolHistory, setToolHistory] = useState<ToolUse[]>([]);
@@ -68,6 +93,18 @@ export function Chat() {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
+    // Validate repo inputs
+    const ownerError = validateOwner(repoOwner);
+    const repoNameError = validateRepo(repoName);
+    if (ownerError || repoNameError) {
+      setRepoError(ownerError || repoNameError);
+      return;
+    }
+    setRepoError(null);
+
+    // Construct the repo URL from validated inputs
+    const repoUrl = `https://github.com/${repoOwner}/${repoName}`;
+
     const userMessage: ChatMessage = { role: "user", content: input.trim() };
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
@@ -80,7 +117,7 @@ export function Chat() {
     startTimeRef.current = Date.now();
 
     try {
-      const stream = await chat(newMessages);
+      const stream = await chat(newMessages, repoUrl);
       const reader = stream.getReader();
       const decoder = new TextDecoder();
       let fullContent = "";
@@ -150,10 +187,46 @@ export function Chat() {
 
   return (
     <div className="flex flex-col h-[600px] max-w-2xl mx-auto bg-white dark:bg-[#2a2925] rounded-2xl shadow-lg border border-[#1a1a1a] dark:border-[#3d3b36]">
+      {/* GitHub repo inputs */}
+      <div className="border-b border-[#1a1a1a] dark:border-[#3d3b36] px-6 py-3">
+        <label className="block text-xs text-[#666666] dark:text-[#a8a49c] mb-1">
+          GitHub Repository
+        </label>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-[#666666] dark:text-[#a8a49c]">github.com/</span>
+          <input
+            type="text"
+            value={repoOwner}
+            onChange={(e) => {
+              setRepoOwner(e.target.value);
+              setRepoError(null);
+            }}
+            placeholder="owner"
+            disabled={isLoading}
+            className="w-28 px-3 py-2 text-sm rounded-lg border border-[#1a1a1a] dark:border-[#3d3b36] bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#666666] dark:placeholder-[#a8a49c] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50"
+          />
+          <span className="text-sm text-[#666666] dark:text-[#a8a49c]">/</span>
+          <input
+            type="text"
+            value={repoName}
+            onChange={(e) => {
+              setRepoName(e.target.value);
+              setRepoError(null);
+            }}
+            placeholder="repo"
+            disabled={isLoading}
+            className="flex-1 px-3 py-2 text-sm rounded-lg border border-[#1a1a1a] dark:border-[#3d3b36] bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#666666] dark:placeholder-[#a8a49c] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50"
+          />
+        </div>
+        {repoError && (
+          <p className="mt-1 text-xs text-red-500 dark:text-red-400">{repoError}</p>
+        )}
+      </div>
+
       {/* Header with suggested questions */}
       <div className="border-b border-[#1a1a1a] dark:border-[#3d3b36] px-6 py-6">
         <p className="text-[#666666] dark:text-[#d5d0c8] text-center mb-4">
-          Ask me anything about my own source code!
+          Ask me anything about this codebase!
         </p>
         <div className="flex flex-wrap gap-3 justify-center items-center">
           {displayedQuestions.map((question, index) => (
@@ -217,7 +290,7 @@ export function Chat() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about my source code..."
+            placeholder="Ask about this codebase..."
             disabled={isLoading}
             className="flex-1 px-4 py-2 rounded-full border border-[#1a1a1a] dark:border-[#3d3b36] bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#666666] dark:placeholder-[#a8a49c] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50"
           />
