@@ -4,7 +4,17 @@ import { useState, useRef, useEffect, FormEvent } from "react";
 import { Message } from "./Message";
 import { UsageDetails, type UsageData } from "./UsageDetails";
 import { ActivityPanel, type ToolUse } from "./ActivityPanel";
-import { chat, type ChatMessage } from "../actions/chat";
+import { chat } from "../actions/chat";
+
+// Toggle between Server Action and API Route for streaming
+// Server Action: simpler, but may have buffering issues in some environments
+// API Route: uses Edge runtime, guaranteed streaming support
+const USE_SERVER_ACTION = true;
+
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
 
 interface MessageWithUsage extends ChatMessage {
   usage?: UsageData;
@@ -117,7 +127,28 @@ export function Chat() {
     startTimeRef.current = Date.now();
 
     try {
-      const stream = await chat(newMessages, repoUrl);
+      let stream: ReadableStream<Uint8Array>;
+
+      if (USE_SERVER_ACTION) {
+        // Option 1: Server Action - simpler, streams response.body directly
+        stream = await chat([...messages, userMessage], repoUrl);
+      } else {
+        // Option 2: API Route - Edge runtime, guaranteed streaming
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            prompt: userMessage.content,
+            repoUrl,
+          }),
+        });
+
+        if (!response.body) {
+          throw new Error(`Request failed: ${response.status}`);
+        }
+        stream = response.body;
+      }
+
       const reader = stream.getReader();
       const decoder = new TextDecoder();
       let fullContent = "";
@@ -137,7 +168,7 @@ export function Chat() {
               fullContent += event.content;
               setStreamingContent(fullContent);
             } else if (event.type === "tool_use") {
-              setToolHistory((prev) => [...prev, { tool: event.tool, timestamp: Date.now() }]);
+              setToolHistory((prev) => [...prev, { tool: event.tool, detail: event.detail, timestamp: Date.now() }]);
             } else if (event.type === "turn") {
               setTurnCount(event.turn);
             } else if (event.type === "usage") {
@@ -188,8 +219,8 @@ export function Chat() {
   return (
     <div className="flex flex-col h-[600px] max-w-2xl mx-auto bg-white dark:bg-[#2a2925] rounded-2xl shadow-lg border border-[#1a1a1a] dark:border-[#3d3b36]">
       {/* GitHub repo inputs */}
-      <div className="border-b border-[#1a1a1a] dark:border-[#3d3b36] px-6 py-3">
-        <label className="block text-xs text-[#666666] dark:text-[#a8a49c] mb-1">
+      <div className="border-b border-[#1a1a1a] dark:border-[#3d3b36] px-6 py-4">
+        <label className="block text-sm font-medium text-[#1a1a1a] dark:text-[#d5d0c8] mb-2">
           GitHub Repository
         </label>
         <div className="flex items-center gap-2">
@@ -203,7 +234,11 @@ export function Chat() {
             }}
             placeholder="owner"
             disabled={isLoading}
-            className="w-28 px-3 py-2 text-sm rounded-lg border border-[#1a1a1a] dark:border-[#3d3b36] bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#666666] dark:placeholder-[#a8a49c] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50"
+            className={`w-28 px-3 py-2 text-sm rounded-lg border bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#888888] dark:placeholder-[#666666] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50 ${
+              !repoOwner.trim()
+                ? "border-red-400/50 dark:border-red-500/50"
+                : "border-[#1a1a1a] dark:border-[#3d3b36]"
+            }`}
           />
           <span className="text-sm text-[#666666] dark:text-[#a8a49c]">/</span>
           <input
@@ -215,9 +250,16 @@ export function Chat() {
             }}
             placeholder="repo"
             disabled={isLoading}
-            className="flex-1 px-3 py-2 text-sm rounded-lg border border-[#1a1a1a] dark:border-[#3d3b36] bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#666666] dark:placeholder-[#a8a49c] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50"
+            className={`flex-1 px-3 py-2 text-sm rounded-lg border bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#888888] dark:placeholder-[#666666] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50 ${
+              !repoName.trim()
+                ? "border-red-400/50 dark:border-red-500/50"
+                : "border-[#1a1a1a] dark:border-[#3d3b36]"
+            }`}
           />
         </div>
+        <p className="mt-2 text-xs text-[#888888] dark:text-[#777777]">
+          Enter a public GitHub repository to explore. Private repos are not supported.
+        </p>
         {repoError && (
           <p className="mt-1 text-xs text-red-500 dark:text-red-400">{repoError}</p>
         )}
@@ -267,14 +309,14 @@ export function Chat() {
           </div>
         ))}
 
-        {/* Streaming message */}
-        {isLoading && streamingContent && (
-          <Message role="assistant" content={streamingContent} isStreaming />
-        )}
-
-        {/* Activity panel during loading */}
-        {isLoading && !streamingContent && (
-          <ActivityPanel toolHistory={toolHistory} turnCount={turnCount} elapsedTime={elapsedTime} />
+        {/* Streaming message and activity panel during loading */}
+        {isLoading && (
+          <>
+            {streamingContent && (
+              <Message role="assistant" content={streamingContent} isStreaming />
+            )}
+            <ActivityPanel toolHistory={toolHistory} turnCount={turnCount} elapsedTime={elapsedTime} />
+          </>
         )}
 
         <div ref={messagesEndRef} />

@@ -61,20 +61,14 @@ export async function chat(messages: ChatMessage[], repoUrl?: string): Promise<R
       }),
     });
 
+    // Even for error responses, the worker returns NDJSON with error details
+    // So we can return the body directly and let the frontend parse it
+    if (!response.ok && response.body) {
+      return response.body;
+    }
+
     if (!response.ok) {
-      // Try to parse error from response body
-      const text = await response.text();
-      let errorMessage = `Worker returned ${response.status}`;
-      try {
-        const parsed = JSON.parse(text);
-        if (parsed.content) {
-          errorMessage = parsed.content;
-        }
-      } catch {
-        // Use status-based message
-        errorMessage = formatHttpError(response.status);
-      }
-      return createErrorStream(encoder, errorMessage);
+      return createErrorStream(encoder, formatHttpError(response.status));
     }
 
     // Stream the response body directly
