@@ -157,3 +157,45 @@ Ask yourself: *"If I have to tell the agent about X, is it really autonomous wit
 - Its own nature → Don't tell, let it discover from self-examination
 
 For a truly autonomous agent, the answer should be consistent across all dimensions.
+
+---
+
+## Why Standard Serverless Fails for Agent SDK
+
+### The Problem
+
+The Claude Agent SDK is fundamentally different from stateless API calls:
+
+| Requirement | What SDK Needs | What Serverless Provides |
+|-------------|----------------|--------------------------|
+| **Subprocess** | Spawns Claude Code CLI | No subprocess support |
+| **Persistent shell** | Tool execution environment | Ephemeral containers |
+| **State** | Multi-turn interactions | Stateless functions |
+| **Node.js + CLI** | Global CLI installation | Limited runtime |
+
+Vercel, AWS Lambda, and standard serverless = ephemeral, no CLI, no subprocess support = **fails**.
+
+### The Solution: Hybrid Architecture
+
+We split the app into two parts:
+
+1. **Frontend (Vercel)**: Next.js app with UI, auth, password gate
+2. **Backend (Cloudflare)**: Worker + Sandbox for agent execution
+
+```
+Vercel (Next.js) ──HTTPS──► Cloudflare Worker ──► Sandbox Container
+                                                   └── Agent SDK
+                                                   └── Claude Code CLI
+```
+
+The sandbox provides an isolated Linux container on Cloudflare's edge, which is the container environment the Agent SDK requires.
+
+### Key Insight
+
+The Agent SDK doesn't just call an API - it orchestrates a local process (Claude Code CLI) that runs tools, maintains state, and streams output. This is fundamentally incompatible with the serverless model. Cloudflare Sandbox provides the runtime environment needed.
+
+### Files
+
+- Worker implementation: `hello-agent-web-worker/` repo
+- Frontend integration: `app/actions/chat.ts` (calls worker API)
+- Deep dive: `agentic-patterns/learning-log/agent-sdk-hosting.md`

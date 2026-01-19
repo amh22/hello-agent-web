@@ -18,8 +18,9 @@ A self-referential AI demo: a web chat interface that lets users ask an AI agent
 
 - **Framework**: Next.js 16 with App Router
 - **Styling**: Tailwind CSS
-- **AI**: Claude Agent SDK
-- **Deployment**: Vercel
+- **AI**: Claude Agent SDK (via Cloudflare Worker)
+- **Frontend Deployment**: Vercel
+- **Agent Backend**: Cloudflare Workers + Sandbox
 
 ## Getting Started
 
@@ -27,7 +28,7 @@ A self-referential AI demo: a web chat interface that lets users ask an AI agent
 
 - Node.js 18+
 - pnpm
-- Anthropic API key
+- Deployed [hello-agent-web-worker](https://github.com/amh22/hello-agent-web-worker)
 
 ### Installation
 
@@ -47,9 +48,8 @@ pnpm install
 3. Create `.env.local` with your configuration:
 
 ```bash
-ANTHROPIC_API_KEY=your-api-key-here
-DEMO_PASSWORD=your-secret-password   # Required for access
-MAX_BUDGET_USD=1.00                  # Optional, defaults to $1.00
+CLOUDFLARE_WORKER_URL=https://hello-agent-web-worker.your-subdomain.workers.dev
+DEMO_PASSWORD=your-secret-password
 ```
 
 4. Start the development server:
@@ -79,48 +79,58 @@ pnpm dev
 ## Architecture
 
 ```
-Browser (Chat UI)
-    │
-    │ Server Action (streaming)
-    ▼
-Next.js Server
-    │
-    │ query() with onMessage callback
-    ▼
-Claude Agent SDK
-    │
-    │ allowedTools: Read, Glob, Grep
-    ▼
-Project Source Files
+┌──────────────────────┐         ┌─────────────────────────────────┐
+│   Vercel             │         │   Cloudflare                    │
+│  ┌────────────────┐  │  HTTPS  │  ┌───────────────────────────┐  │
+│  │ Next.js App    │──┼────────►│  │ Worker                    │  │
+│  │ - UI/React     │  │         │  │ - CORS handling           │  │
+│  │ - Auth         │  │         │  │ - Rate limiting           │  │
+│  │ - Password gate│  │         │  └─────────┬─────────────────┘  │
+│  └────────────────┘  │         │            │                    │
+└──────────────────────┘         │  ┌─────────▼─────────────────┐  │
+                                 │  │ Sandbox Container         │  │
+                                 │  │ - Claude Code CLI         │  │
+                                 │  │ - Agent SDK               │  │
+                                 │  │ - Project files           │  │
+                                 │  │ - allowedTools: Read,     │  │
+                                 │  │   Glob, Grep              │  │
+                                 │  └───────────────────────────┘  │
+                                 └─────────────────────────────────┘
 ```
+
+The frontend (Next.js) stays on Vercel for great DX. Agent execution happens in a Cloudflare Sandbox, which provides the container environment the Agent SDK requires.
+
+See [hello-agent-web-worker](https://github.com/amh22/hello-agent-web-worker) for the backend.
 
 ## Deployment
 
-Deploy to Vercel:
+### 1. Deploy the Worker (Cloudflare)
+
+First, deploy [hello-agent-web-worker](https://github.com/amh22/hello-agent-web-worker) to Cloudflare. See that repo's README for instructions.
+
+### 2. Deploy the Frontend (Vercel)
 
 1. Push to GitHub
 2. Connect repository to Vercel
 3. Set environment variables in Vercel:
-   - `ANTHROPIC_API_KEY` - Your Anthropic API key
+   - `CLOUDFLARE_WORKER_URL` - URL of your deployed worker
    - `DEMO_PASSWORD` - Password to protect the demo
-   - `MAX_BUDGET_USD` - Optional cost limit per query (default: 1.00)
 4. Deploy
 
 ### Environment Variables
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `ANTHROPIC_API_KEY` | Yes | - | Your Anthropic API key |
-| `DEMO_PASSWORD` | Yes | - | Password required to access the chat |
-| `MAX_BUDGET_USD` | No | 1.00 | Maximum API cost per query in USD |
-| `RATE_LIMIT_MAX_REQUESTS` | No | 5 | Max requests per minute per IP |
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `CLOUDFLARE_WORKER_URL` | Yes | URL of the hello-agent-web-worker |
+| `DEMO_PASSWORD` | Yes | Password required to access the chat |
 
 ### Security Notes
 
 - Password verification uses timing-safe comparison to prevent timing attacks
 - Authentication is stored in `sessionStorage` (cleared when tab closes)
-- Per-query budget limit prevents runaway API costs
-- Rate limiting (5 req/min per IP) prevents abuse and DDoS-style attacks
+- Rate limiting and budget limits are enforced by the worker
+- Each agent request runs in an isolated sandbox container
+- Only read-only tools (Read, Glob, Grep) are allowed
 
 ## License
 
