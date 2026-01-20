@@ -1,8 +1,42 @@
-# Hello, Agent
+# Hello, Agent (Web UI)
 
-An AI codebase explorer. By default, the agent explores its own source code - or point it at any public GitHub repo.
+An AI codebase explorer. By default, the agent explores its own source code - or point it at any public GitHub repo. This is POC 01b in the [agentic-patterns](https://github.com/amh22/agentic-patterns) learning roadmap - demonstrating how to "build your own Claude Code" with a web interface.
 
 **Demo pitch**: "Chat with an AI that can read and explain a codebase"
+
+## Use Cases
+
+**Current**: Non-technical stakeholders asking questions about a codebase without CLI.
+
+**Other applications**:
+- Customer support looking up technical documentation while on a call with a client
+- Product managers understanding technical constraints before roadmap planning
+- QA team understanding how features are implemented to write better tests
+- Executives getting high-level architecture overviews for board presentations
+- External auditors reviewing code without requiring CLI setup or training
+- Designers asking about component structure to align design systems
+- Sales engineers demoing codebase intelligence to prospects
+
+## Scenarios
+
+| Aspect | Details |
+|--------|---------|
+| **Location** | Any device with a browser - office, home, coffee shop, commute |
+| **Device** | Desktop or mobile (tablet-friendly for meetings) |
+| **Work Type** | Ad-hoc questions, no setup required |
+| **Mode** | **Read-only** - same permissions as CLI, just different interface |
+| **Access** | Shareable link - can be embedded in internal tools or client portals |
+
+### UI Variations
+This pattern could be delivered as:
+- Web app (current implementation)
+- Desktop app (Electron/Tauri)
+- Internal intranet tool
+- Embedded widget in existing dashboards
+- Slack/Teams bot integration
+- Mobile app for on-the-go queries
+
+---
 
 ## Features
 
@@ -131,6 +165,12 @@ First, deploy [hello-agent-web-worker](https://github.com/amh22/hello-agent-web-
 - Rate limiting and budget limits are enforced by the worker
 - Each agent request runs in an isolated sandbox container
 - Only read-only tools (Read, Glob, Grep) are allowed
+
+## Related
+
+- [hello-agent](https://github.com/amh22/hello-agent) - CLI version of this agent
+- [hello-agent-web-worker](https://github.com/amh22/hello-agent-web-worker) - Backend worker for this app
+- [agentic-patterns](https://github.com/amh22/agentic-patterns) - Learning roadmap and documentation
 
 ## License
 
