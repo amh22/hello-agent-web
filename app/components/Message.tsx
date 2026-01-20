@@ -4,17 +4,25 @@ interface MessageProps {
   role: "user" | "assistant";
   content: string;
   isStreaming?: boolean;
+  pillColor?: "blue" | "red";
 }
 
-export function Message({ role, content, isStreaming }: MessageProps) {
+export function Message({ role, content, isStreaming, pillColor = "blue" }: MessageProps) {
   const isUser = role === "user";
+
+  const getUserBubbleClasses = () => {
+    if (pillColor === "red") {
+      return "bg-red-100 dark:bg-red-600 text-red-900 dark:text-white border-red-300 dark:border-red-500";
+    }
+    return "bg-blue-100 dark:bg-blue-600 text-blue-900 dark:text-white border-blue-300 dark:border-blue-500";
+  };
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4`}>
       <div
         className={`max-w-[80%] rounded-2xl px-4 py-3 border ${
           isUser
-            ? "bg-[#E8D5F0] dark:bg-[#6B4C7A] text-[#1a1a1a] dark:text-[#F5F0EB] border-[#1a1a1a] dark:border-[#3d3b36]"
+            ? getUserBubbleClasses()
             : "bg-white dark:bg-[#2a2925] text-[#1a1a1a] dark:text-[#F5F0EB] border-[#1a1a1a] dark:border-[#3d3b36]"
         }`}
       >

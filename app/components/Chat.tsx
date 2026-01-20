@@ -18,29 +18,41 @@ interface ChatMessage {
 
 interface MessageWithUsage extends ChatMessage {
   usage?: UsageData;
+  pillColor?: "blue" | "red";
 }
 
-const ALL_QUESTIONS = [
-  // For developers
+// Blue Pill: Stay in the comfortable illusion - fun, generic questions
+const BLUE_PILL_QUESTIONS = [
+  "Explain this project in simple terms",
+  "What problem does this code solve?",
+  "Summarize this codebase in 3 sentences",
+  "What's the most interesting file in this project?",
+  "How is this project organized?",
+  "What would you name this project if you had to rename it?",
+  "If this codebase was a movie, what genre would it be?",
+  "What's one thing that surprised you about this code?",
+];
+
+// Red Pill: Go down the rabbit hole - deep technical questions
+const RED_PILL_QUESTIONS = [
   "What's the overall architecture of this project?",
   "Find all TODO comments and summarize them",
   "What testing framework is being used?",
   "Explain how authentication works in this codebase",
-  // For non-technical users
-  "Explain this project in simple terms",
-  "What problem does this code solve?",
-  "How is this project organized?",
-  // For onboarding
   "Where should I start if I want to contribute?",
   "What are the main entry points to this codebase?",
   "What dependencies does this project use?",
-  // Fun/Demo
-  "What's the most interesting file in this project?",
-  "Summarize this codebase in 3 sentences",
+  "Are there any potential security vulnerabilities?",
+  "What design patterns are used in this codebase?",
+  "Find any code that could be refactored and explain why",
+  "How is error handling implemented?",
+  "What's the data flow through this application?",
 ];
 
-function getRandomQuestions(count: number): string[] {
-  const shuffled = [...ALL_QUESTIONS].sort(() => Math.random() - 0.5);
+type PillType = "blue" | "red";
+
+function getRandomQuestions(questions: string[], count: number): string[] {
+  const shuffled = [...questions].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count);
 }
 
@@ -77,12 +89,25 @@ export function Chat() {
   const [toolHistory, setToolHistory] = useState<ToolUse[]>([]);
   const [turnCount, setTurnCount] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [displayedQuestions, setDisplayedQuestions] = useState<string[]>(() => getRandomQuestions(4));
+  const [selectedPill, setSelectedPill] = useState<PillType>("blue");
+  const [questionIndex, setQuestionIndex] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const startTimeRef = useRef<number>(0);
 
-  const handleShuffle = () => {
-    setDisplayedQuestions(getRandomQuestions(4));
+  const currentQuestions = selectedPill === "blue" ? BLUE_PILL_QUESTIONS : RED_PILL_QUESTIONS;
+  const currentQuestion = currentQuestions[questionIndex % currentQuestions.length];
+
+  const handlePrevQuestion = () => {
+    setQuestionIndex((prev) => (prev - 1 + currentQuestions.length) % currentQuestions.length);
+  };
+
+  const handleNextQuestion = () => {
+    setQuestionIndex((prev) => (prev + 1) % currentQuestions.length);
+  };
+
+  const handlePillSelect = (pill: PillType) => {
+    setSelectedPill(pill);
+    setQuestionIndex(0);
   };
 
   const scrollToBottom = () => {
@@ -120,7 +145,7 @@ export function Chat() {
     // Construct the repo URL from validated inputs
     const repoUrl = `https://github.com/${repoOwner}/${repoName}`;
 
-    const userMessage: ChatMessage = { role: "user", content: input.trim() };
+    const userMessage: MessageWithUsage = { role: "user", content: input.trim(), pillColor: selectedPill };
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setInput("");
@@ -270,30 +295,103 @@ export function Chat() {
         )}
       </div>
 
-      {/* Header with suggested questions */}
-      <div className="border-b border-[#1a1a1a] dark:border-[#3d3b36] px-6 py-6">
-        <p className="text-[#666666] dark:text-[#d5d0c8] text-center mb-4">
-          Ask me anything about this codebase!
-        </p>
-        <div className="flex flex-wrap gap-3 justify-center items-center">
-          {displayedQuestions.map((question, index) => (
+      {/* Header with pill toggles and question carousel */}
+      <div className="border-b border-[#1a1a1a] dark:border-[#3d3b36] px-4 py-3">
+        <div className="flex items-center justify-center gap-3 mb-2">
+          <p className="text-sm text-[#666666] dark:text-[#d5d0c8]">
+            See how deep the rabbit hole goes
+          </p>
+
+          {/* Pill toggles */}
+          <div className="flex gap-3">
             <button
-              key={question}
-              onClick={() => handleSuggestionClick(question)}
+              onClick={() => handlePillSelect("blue")}
               disabled={isLoading}
-              className="text-xs px-3 py-2 rounded-lg bg-white dark:bg-[#1c1b18] border border-[#1a1a1a] dark:border-[#3d3b36] text-[#1a1a1a] dark:text-[#c5c0b8] hover:bg-[#E8D5F0] dark:hover:bg-[#6B4C7A] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                selectedPill === "blue"
+                  ? "scale-110 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]"
+                  : "opacity-50 hover:opacity-100 hover:scale-105"
+              }`}
+              title="Blue pill: Stay comfortable with fun questions"
             >
-              {question}
+              <svg width="24" height="15" viewBox="0 0 32 20">
+                <defs>
+                  <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#60a5fa" />
+                    <stop offset="50%" stopColor="#3b82f6" />
+                    <stop offset="100%" stopColor="#1d4ed8" />
+                  </linearGradient>
+                  <linearGradient id="blueShine" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="white" stopOpacity="0.6" />
+                    <stop offset="50%" stopColor="white" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                <ellipse cx="16" cy="10" rx="15" ry="9" fill="url(#blueGradient)" />
+                <ellipse cx="16" cy="7" rx="10" ry="4" fill="url(#blueShine)" />
+              </svg>
             </button>
-          ))}
+            <button
+              onClick={() => handlePillSelect("red")}
+              disabled={isLoading}
+              className={`transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                selectedPill === "red"
+                  ? "scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]"
+                  : "opacity-50 hover:opacity-100 hover:scale-105"
+              }`}
+              title="Red pill: Go down the rabbit hole with deep technical questions"
+            >
+              <svg width="24" height="15" viewBox="0 0 32 20">
+                <defs>
+                  <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#f87171" />
+                    <stop offset="50%" stopColor="#ef4444" />
+                    <stop offset="100%" stopColor="#b91c1c" />
+                  </linearGradient>
+                  <linearGradient id="redShine" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="white" stopOpacity="0.6" />
+                    <stop offset="50%" stopColor="white" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                <ellipse cx="16" cy="10" rx="15" ry="9" fill="url(#redGradient)" />
+                <ellipse cx="16" cy="7" rx="10" ry="4" fill="url(#redShine)" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Question carousel */}
+        <div className="flex items-center justify-center gap-2">
           <button
-            onClick={handleShuffle}
+            onClick={handlePrevQuestion}
             disabled={isLoading}
-            className="p-2 rounded-full border border-[#1a1a1a] dark:border-[#3d3b36] text-[#666666] dark:text-[#a8a49c] hover:bg-[#E8D5F0] dark:hover:bg-[#6B4C7A] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Shuffle questions"
+            className="p-1 text-[#666666] dark:text-[#a8a49c] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Previous question"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <button
+            onClick={() => handleSuggestionClick(currentQuestion)}
+            disabled={isLoading}
+            className={`text-xs px-4 py-2 rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-w-[280px] ${
+              selectedPill === "blue"
+                ? "bg-blue-50 dark:bg-blue-500/15 border-blue-300 dark:border-blue-500/40 text-[#1a1a1a] dark:text-blue-100 hover:bg-blue-100 dark:hover:bg-blue-500/25"
+                : "bg-red-50 dark:bg-red-500/15 border-red-300 dark:border-red-500/40 text-[#1a1a1a] dark:text-red-100 hover:bg-red-100 dark:hover:bg-red-500/25"
+            }`}
+          >
+            {currentQuestion}
+          </button>
+
+          <button
+            onClick={handleNextQuestion}
+            disabled={isLoading}
+            className="p-1 text-[#666666] dark:text-[#a8a49c] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Next question"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
         </div>
@@ -303,7 +401,7 @@ export function Chat() {
       <div className="flex-1 overflow-y-auto p-4">
         {messages.map((message, index) => (
           <div key={index}>
-            <Message role={message.role} content={message.content} />
+            <Message role={message.role} content={message.content} pillColor={message.pillColor || selectedPill} />
             {message.role === "assistant" && message.usage && (
               <div className="flex justify-start mb-4 -mt-2">
                 <div className="max-w-[80%] px-4">
@@ -318,7 +416,7 @@ export function Chat() {
         {isLoading && (
           <>
             {streamingContent && (
-              <Message role="assistant" content={streamingContent} isStreaming />
+              <Message role="assistant" content={streamingContent} isStreaming pillColor={selectedPill} />
             )}
             <ActivityPanel toolHistory={toolHistory} turnCount={turnCount} elapsedTime={elapsedTime} />
           </>
@@ -332,19 +430,23 @@ export function Chat() {
         onSubmit={handleSubmit}
         className="border-t border-[#1a1a1a] dark:border-[#3d3b36] p-4"
       >
-        <div className="flex gap-2">
+        <div className="flex h-[38px] gap-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about this codebase..."
             disabled={isLoading}
-            className="flex-1 px-4 py-2 rounded-full border border-[#1a1a1a] dark:border-[#3d3b36] bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#666666] dark:placeholder-[#a8a49c] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50"
+            className="flex-1 h-full px-3 text-sm rounded-lg border border-[#1a1a1a] dark:border-[#3d3b36] bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#666666] dark:placeholder-[#a8a49c] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            className="px-6 py-2 rounded-full bg-[#E8D5F0] dark:bg-[#6B4C7A] text-[#1a1a1a] dark:text-[#F5F0EB] font-medium border border-[#1a1a1a] dark:border-[#3d3b36] hover:bg-[#d9c4e3] dark:hover:bg-[#7d5a8c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`h-full px-4 text-sm rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+              selectedPill === "blue"
+                ? "bg-blue-100 dark:bg-blue-600 text-blue-900 dark:text-white border-blue-300 dark:border-blue-500 hover:bg-blue-200 dark:hover:bg-blue-500"
+                : "bg-red-100 dark:bg-red-600 text-red-900 dark:text-white border-red-300 dark:border-red-500 hover:bg-red-200 dark:hover:bg-red-500"
+            }`}
           >
             Send
           </button>
