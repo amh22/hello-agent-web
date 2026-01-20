@@ -24,24 +24,25 @@ interface MessageWithUsage extends ChatMessage {
 // Blue Pill: Stay in the comfortable illusion - fun, generic questions
 const BLUE_PILL_QUESTIONS = [
   "Explain this project in simple terms",
-  "What problem does this code solve?",
   "Summarize this codebase in 3 sentences",
-  "What's the most interesting file in this project?",
   "How is this project organized?",
-  "What would you name this project if you had to rename it?",
   "If this codebase was a movie, what genre would it be?",
+  "What problem does this code solve?",
+  "What's the most interesting file in this project?",
+  "Can you write a short poem about this codebase?",
+  "What would you name this project if you had to rename it?",
   "What's one thing that surprised you about this code?",
 ];
 
 // Red Pill: Go down the rabbit hole - deep technical questions
 const RED_PILL_QUESTIONS = [
   "What's the overall architecture of this project?",
-  "Find all TODO comments and summarize them",
-  "What testing framework is being used?",
-  "Explain how authentication works in this codebase",
-  "Where should I start if I want to contribute?",
   "What are the main entry points to this codebase?",
   "What dependencies does this project use?",
+  "Find all TODO comments and summarize them",
+  "Explain how authentication works in this codebase",
+  "Where should I start if I want to contribute?",
+  "What testing framework is being used?",
   "Are there any potential security vulnerabilities?",
   "What design patterns are used in this codebase?",
   "Find any code that could be refactored and explain why",
@@ -50,11 +51,6 @@ const RED_PILL_QUESTIONS = [
 ];
 
 type PillType = "blue" | "red";
-
-function getRandomQuestions(questions: string[], count: number): string[] {
-  const shuffled = [...questions].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count);
-}
 
 // Validation patterns for GitHub owner and repo names
 const OWNER_PATTERN = /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$/;

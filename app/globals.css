@@ -57,3 +57,10 @@ body {
 .animate-matrix-fall {
   animation: matrix-fall 10s linear infinite;
 }
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .animate-matrix-fall {
+    animation: none;
+  }
+}
