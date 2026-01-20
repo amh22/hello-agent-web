@@ -158,6 +158,16 @@ First, deploy [hello-agent-web-worker](https://github.com/amh22/hello-agent-web-
 | `CLOUDFLARE_WORKER_URL` | Yes | URL of the hello-agent-web-worker |
 | `DEMO_PASSWORD` | Yes | Password required to access the chat |
 
+### Streaming Architecture
+
+The frontend uses an **API Route with Edge runtime** (not Server Actions) for streaming responses from the Cloudflare worker. This is important because:
+
+- Server Actions can have buffering issues in Vercel production that truncate streaming responses
+- Edge runtime provides reliable, unbuffered streaming
+- The API route at `/api/chat` proxies requests to the Cloudflare worker
+
+If you see truncated responses in production, ensure `USE_SERVER_ACTION = false` in `Chat.tsx`.
+
 ### Security Notes
 
 - Password verification uses timing-safe comparison to prevent timing attacks
