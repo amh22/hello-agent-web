@@ -251,39 +251,43 @@ export function Chat() {
         <label className="block text-sm font-medium text-[#1a1a1a] dark:text-[#d5d0c8] mb-2">
           GitHub Repository
         </label>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-[#666666] dark:text-[#a8a49c]">github.com/</span>
-          <input
-            type="text"
-            value={repoOwner}
-            onChange={(e) => {
-              setRepoOwner(e.target.value);
-              setRepoError(null);
-            }}
-            placeholder="owner"
-            disabled={isLoading}
-            className={`w-28 px-3 py-2 text-sm rounded-lg border bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#888888] dark:placeholder-[#666666] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50 ${
-              !repoOwner.trim()
-                ? "border-red-400/50 dark:border-red-500/50"
-                : "border-[#1a1a1a] dark:border-[#3d3b36]"
-            }`}
-          />
-          <span className="text-sm text-[#666666] dark:text-[#a8a49c]">/</span>
-          <input
-            type="text"
-            value={repoName}
-            onChange={(e) => {
-              setRepoName(e.target.value);
-              setRepoError(null);
-            }}
-            placeholder="repo"
-            disabled={isLoading}
-            className={`flex-1 px-3 py-2 text-sm rounded-lg border bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#888888] dark:placeholder-[#666666] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50 ${
-              !repoName.trim()
-                ? "border-red-400/50 dark:border-red-500/50"
-                : "border-[#1a1a1a] dark:border-[#3d3b36]"
-            }`}
-          />
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-[#666666] dark:text-[#a8a49c]">github.com/</span>
+            <input
+              type="text"
+              value={repoOwner}
+              onChange={(e) => {
+                setRepoOwner(e.target.value);
+                setRepoError(null);
+              }}
+              placeholder="owner"
+              disabled={isLoading}
+              className={`w-28 px-3 py-2 text-sm rounded-lg border bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#888888] dark:placeholder-[#666666] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50 ${
+                !repoOwner.trim()
+                  ? "border-red-400/50 dark:border-red-500/50"
+                  : "border-[#1a1a1a] dark:border-[#3d3b36]"
+              }`}
+            />
+          </div>
+          <div className="flex items-center gap-2 flex-1 min-w-[180px]">
+            <span className="text-sm text-[#666666] dark:text-[#a8a49c]">/</span>
+            <input
+              type="text"
+              value={repoName}
+              onChange={(e) => {
+                setRepoName(e.target.value);
+                setRepoError(null);
+              }}
+              placeholder="repo"
+              disabled={isLoading}
+              className={`flex-1 px-3 py-2 text-sm rounded-lg border bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#888888] dark:placeholder-[#666666] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50 ${
+                !repoName.trim()
+                  ? "border-red-400/50 dark:border-red-500/50"
+                  : "border-[#1a1a1a] dark:border-[#3d3b36]"
+              }`}
+            />
+          </div>
         </div>
         <p className="mt-2 text-xs text-[#888888] dark:text-[#777777]">
           Enter a public GitHub repository to explore. Private repos are not supported.
@@ -358,11 +362,11 @@ export function Chat() {
         </div>
 
         {/* Question carousel */}
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-1 sm:gap-2 px-1">
           <button
             onClick={handlePrevQuestion}
             disabled={isLoading}
-            className="p-1 text-[#666666] dark:text-[#a8a49c] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-1 text-[#666666] dark:text-[#a8a49c] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
             title="Previous question"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -373,7 +377,7 @@ export function Chat() {
           <button
             onClick={() => handleSuggestionClick(currentQuestion)}
             disabled={isLoading}
-            className={`text-xs px-4 py-2 rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-w-[280px] ${
+            className={`text-xs px-3 sm:px-4 py-2 rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-1 min-w-0 ${
               selectedPill === "blue"
                 ? "bg-blue-50 dark:bg-blue-500/15 border-blue-300 dark:border-blue-500/40 text-[#1a1a1a] dark:text-blue-100 hover:bg-blue-100 dark:hover:bg-blue-500/25"
                 : "bg-red-50 dark:bg-red-500/15 border-red-300 dark:border-red-500/40 text-[#1a1a1a] dark:text-red-100 hover:bg-red-100 dark:hover:bg-red-500/25"
@@ -385,7 +389,7 @@ export function Chat() {
           <button
             onClick={handleNextQuestion}
             disabled={isLoading}
-            className="p-1 text-[#666666] dark:text-[#a8a49c] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-1 text-[#666666] dark:text-[#a8a49c] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
             title="Next question"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

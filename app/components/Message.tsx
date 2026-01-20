@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface MessageProps {
   role: "user" | "assistant";
@@ -10,9 +11,16 @@ interface MessageProps {
   pillColor?: "blue" | "red";
 }
 
+// Preprocess markdown to ensure headings have proper newlines before them
+function preprocessMarkdown(text: string): string {
+  // Add newline before headings that don't have one (e.g., "text.# Heading" -> "text.\n\n# Heading")
+  return text.replace(/([^\n])(#{1,6}\s)/g, '$1\n\n$2');
+}
+
 export function Message({ role, content, isStreaming, pillColor = "blue" }: MessageProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const isUser = role === "user";
+  const processedContent = preprocessMarkdown(content);
 
   // Handle Escape key to close modal
   useEffect(() => {
@@ -41,8 +49,8 @@ export function Message({ role, content, isStreaming, pillColor = "blue" }: Mess
   };
 
   const markdownContent = (
-    <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:mt-4 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-pre:bg-[#1a1a1a] prose-pre:dark:bg-[#1c1b18] prose-code:text-[#e879f9] prose-code:dark:text-[#c084fc] prose-hr:my-4 prose-hr:border-[#3d3b36]">
-      <ReactMarkdown>{content}</ReactMarkdown>
+    <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:mt-4 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-pre:bg-[#1a1a1a] prose-pre:dark:bg-[#1c1b18] prose-code:text-[#e879f9] prose-code:dark:text-[#c084fc] prose-hr:my-4 prose-hr:border-[#3d3b36] prose-table:border-collapse prose-th:border prose-th:border-[#3d3b36] prose-th:px-3 prose-th:py-2 prose-td:border prose-td:border-[#3d3b36] prose-td:px-3 prose-td:py-2">
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{processedContent}</ReactMarkdown>
     </div>
   );
 
@@ -124,8 +132,8 @@ export function Message({ role, content, isStreaming, pillColor = "blue" }: Mess
             </div>
             {/* Modal content */}
             <div className="p-6 text-[#1a1a1a] dark:text-[#F5F0EB]">
-              <div className="prose dark:prose-invert max-w-none prose-headings:mt-4 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-pre:bg-[#1a1a1a] prose-pre:dark:bg-[#1c1b18] prose-code:text-[#e879f9] prose-code:dark:text-[#c084fc] prose-hr:my-4 prose-hr:border-[#3d3b36]">
-                <ReactMarkdown>{content}</ReactMarkdown>
+              <div className="prose dark:prose-invert max-w-none prose-headings:mt-4 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-pre:bg-[#1a1a1a] prose-pre:dark:bg-[#1c1b18] prose-code:text-[#e879f9] prose-code:dark:text-[#c084fc] prose-hr:my-4 prose-hr:border-[#3d3b36] prose-table:border-collapse prose-th:border prose-th:border-[#3d3b36] prose-th:px-3 prose-th:py-2 prose-td:border prose-td:border-[#3d3b36] prose-td:px-3 prose-td:py-2">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{processedContent}</ReactMarkdown>
               </div>
             </div>
           </div>
