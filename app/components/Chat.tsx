@@ -24,6 +24,7 @@ interface MessageWithUsage extends ChatMessage {
 // Blue Pill: Stay in the comfortable illusion - fun, generic questions
 const BLUE_PILL_QUESTIONS = [
   "Explain this project in simple terms",
+  "I'm an executive and I'd like a high-level architecture overview for a board presentation",
   "Summarize this codebase in 3 sentences",
   "How is this project organized?",
   "If this codebase was a movie, what genre would it be?",
@@ -32,7 +33,6 @@ const BLUE_PILL_QUESTIONS = [
   "Can you write a short poem about this codebase?",
   "What would you name this project if you had to rename it?",
   "What's one thing that surprised you about this code?",
-  "I'm an executive and I'd like a high-level architecture overview for a board presentation",
 ];
 
 // Red Pill: Go down the rabbit hole - deep technical questions
