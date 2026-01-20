@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Hello, Agent - AI Codebase Explorer",
+  title: "Neo - See the code for what it really is",
   description:
-    "Chat with an AI agent that can read and explain a codebase. Built with Next.js and Claude Agent SDK.",
+    "Point Neo at any public GitHub repository. It reads, searches, and decodes the codebase for you.",
 };
 
 export default function RootLayout({
@@ -25,7 +25,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('theme');
+                  var prefersDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  if (prefersDark) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${inter.variable} ${geistMono.variable} antialiased`}
       >

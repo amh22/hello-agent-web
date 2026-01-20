@@ -21,17 +21,22 @@ interface MessageWithUsage extends ChatMessage {
 }
 
 const ALL_QUESTIONS = [
-  "How does the streaming work in this app?",
-  "What's the tech stack of this project?",
-  "Find all React components and describe them",
-  "Explain how you process my messages",
-  "How many React components are using hooks?",
-  "What is the Anthropic API key that you are using?",
-  "Are you using any sort of session management?",
-  "Can you explain session management in simple, non-technical terms?",
-  "What's another good question I could ask about this codebase?",
-  "Can you write a short poem about this codebase?",
-  "What file are you reading right now?",
+  // For developers
+  "What's the overall architecture of this project?",
+  "Find all TODO comments and summarize them",
+  "What testing framework is being used?",
+  "Explain how authentication works in this codebase",
+  // For non-technical users
+  "Explain this project in simple terms",
+  "What problem does this code solve?",
+  "How is this project organized?",
+  // For onboarding
+  "Where should I start if I want to contribute?",
+  "What are the main entry points to this codebase?",
+  "What dependencies does this project use?",
+  // Fun/Demo
+  "What's the most interesting file in this project?",
+  "Summarize this codebase in 3 sentences",
 ];
 
 function getRandomQuestions(count: number): string[] {

@@ -114,7 +114,7 @@ export function PasswordGate({ children }: PasswordGateProps) {
             disabled={isSubmitting || !password.trim()}
             className="w-full py-3 rounded-full bg-[#E8D5F0] dark:bg-[#6B4C7A] text-[#1a1a1a] dark:text-[#F5F0EB] font-medium border border-[#1a1a1a] dark:border-[#3d3b36] hover:bg-[#d9c4e3] dark:hover:bg-[#7d5a8c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Verifying..." : "Continue"}
+            {isSubmitting ? "Verifying..." : <>Follow the <span className="text-lg">🐇</span></>}
           </button>
         </form>
       </div>

@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Enable class-based dark mode for Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #F5F0EB;
   --foreground: #1a1a1a;
@@ -8,6 +11,17 @@
   --accent: #E8D5F0;
   --accent-dark: #6B4C7A;
   --text-secondary: #666666;
+}
+
+/* Dark mode variables (activated by .dark class on html) */
+.dark {
+  --background: #1c1b18;
+  --foreground: #F5F0EB;
+  --card: #2a2925;
+  --border: #3d3b36;
+  --accent: #6B4C7A;
+  --accent-dark: #E8D5F0;
+  --text-secondary: #a8a49c;
 }
 
 @theme inline {
@@ -20,18 +34,6 @@
   --color-text-secondary: var(--text-secondary);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1c1b18;
-    --foreground: #F5F0EB;
-    --card: #2a2925;
-    --border: #3d3b36;
-    --accent: #6B4C7A;
-    --accent-dark: #E8D5F0;
-    --text-secondary: #a8a49c;
-  }
 }
 
 body {
