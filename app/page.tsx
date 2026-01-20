@@ -34,6 +34,17 @@ export default function Home() {
         {/* Footer */}
         <footer className="mt-12 text-center text-sm text-[#666666] dark:text-[#a8a49c]">
           <p>
+            Orchestrated by{" "}
+            <a
+              href="https://github.com/amh22"
+              className="underline hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB]"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              amh
+            </a>
+          </p>
+          <p className="mt-1">
             Powered by{" "}
             <a
               href="https://anthropic.com"
