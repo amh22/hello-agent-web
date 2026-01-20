@@ -65,11 +65,11 @@ export function PasswordGate({ children }: PasswordGateProps) {
   // Show password form
   return (
     <div className="max-w-md mx-auto">
-      <div className="bg-white dark:bg-[#2a2925] rounded-2xl shadow-lg border border-[#1a1a1a] dark:border-[#3d3b36] p-8">
+      <div className="bg-white dark:bg-[#0d0d0d] rounded-2xl shadow-lg border border-[#1a1a1a] dark:border-[#3d3b36] p-8">
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#E8D5F0] dark:bg-[#6B4C7A] mb-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#f5e6d3] dark:bg-[#2a2520] mb-4">
             <svg
-              className="w-6 h-6 text-[#6B4C7A] dark:text-[#E8D5F0]"
+              className="w-6 h-6 text-[#b8860b] dark:text-[#d4a574]"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -99,7 +99,7 @@ export function PasswordGate({ children }: PasswordGateProps) {
               placeholder="Password"
               disabled={isSubmitting}
               autoFocus
-              className="w-full px-4 py-3 rounded-xl border border-[#1a1a1a] dark:border-[#3d3b36] bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#666666] dark:placeholder-[#a8a49c] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50"
+              className="w-full px-4 py-3 rounded-xl border border-[#1a1a1a] dark:border-[#3d3b36] bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#666666] dark:placeholder-[#a8a49c] focus:outline-none focus:ring-2 focus:ring-[#b8860b] disabled:opacity-50"
             />
           </div>
 
@@ -112,7 +112,7 @@ export function PasswordGate({ children }: PasswordGateProps) {
           <button
             type="submit"
             disabled={isSubmitting || !password.trim()}
-            className="w-full py-3 rounded-full bg-[#E8D5F0] dark:bg-[#6B4C7A] text-[#1a1a1a] dark:text-[#F5F0EB] font-medium border border-[#1a1a1a] dark:border-[#3d3b36] hover:bg-[#d9c4e3] dark:hover:bg-[#7d5a8c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 rounded-full bg-[#4a5f52] dark:bg-[#3a4f42] text-[#f0f0f0] font-medium border border-[#1a1a1a] dark:border-[#3d3b36] hover:bg-[#5a6f62] dark:hover:bg-[#4a5f52] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Verifying..." : <>Follow the <span className="text-lg">🐇</span></>}
           </button>
