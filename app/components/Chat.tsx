@@ -222,7 +222,7 @@ export function Chat() {
   };
 
   return (
-    <div className="flex flex-col h-[600px] max-w-2xl mx-auto bg-white dark:bg-[#2a2925] rounded-2xl shadow-lg border border-[#1a1a1a] dark:border-[#3d3b36]">
+    <div className="flex flex-col h-[600px] max-w-2xl mx-auto bg-white dark:bg-[#2a2925]/95 rounded-2xl shadow-lg border border-[#1a1a1a] dark:border-[#00ff00]/15 dark:shadow-[0_0_20px_rgba(0,255,0,0.08)]">
       {/* GitHub repo inputs */}
       <div className="border-b border-[#1a1a1a] dark:border-[#3d3b36] px-6 py-4">
         <label className="block text-sm font-medium text-[#1a1a1a] dark:text-[#d5d0c8] mb-2">
