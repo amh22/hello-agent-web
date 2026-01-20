@@ -32,6 +32,7 @@ const BLUE_PILL_QUESTIONS = [
   "Can you write a short poem about this codebase?",
   "What would you name this project if you had to rename it?",
   "What's one thing that surprised you about this code?",
+  "I'm an executive and I'd like a high-level architecture overview for a board presentation",
 ];
 
 // Red Pill: Go down the rabbit hole - deep technical questions
@@ -48,6 +49,7 @@ const RED_PILL_QUESTIONS = [
   "Find any code that could be refactored and explain why",
   "How is error handling implemented?",
   "What's the data flow through this application?",
+  "What AI model does this codebase use?",
 ];
 
 type PillType = "blue" | "red";
