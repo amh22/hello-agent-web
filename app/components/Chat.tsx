@@ -62,6 +62,10 @@ const REPO_PATTERN = /^[a-zA-Z0-9._-]+$/;
 const DEFAULT_OWNER = "amh22";
 const DEFAULT_REPO = "hello-agent-web";
 
+// Number of previous questions to include in conversation history
+// Each question includes its corresponding assistant response
+const HISTORY_QUESTIONS = 4;
+
 function validateOwner(owner: string): string | null {
   if (!owner.trim()) return "Owner is required";
   if (owner.length > 39) return "Owner name too long";
@@ -157,6 +161,13 @@ export function Chat() {
     try {
       let stream: ReadableStream<Uint8Array>;
 
+      // Collect conversation history (last N questions and their responses)
+      // Each question = 1 user message + 1 assistant response = 2 array items
+      const history = messages.slice(-(HISTORY_QUESTIONS * 2)).map(m => ({
+        role: m.role,
+        content: m.content,
+      }));
+
       if (USE_SERVER_ACTION) {
         // Option 1: Server Action - simpler, streams response.body directly
         stream = await chat([...messages, userMessage], repoUrl);
@@ -168,6 +179,7 @@ export function Chat() {
           body: JSON.stringify({
             prompt: userMessage.content,
             repoUrl,
+            history,
           }),
         });
 

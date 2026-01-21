@@ -26,7 +26,11 @@ export async function POST(request: NextRequest) {
   }
 
   // Parse request body
-  let body: { prompt: string; repoUrl?: string };
+  let body: {
+    prompt: string;
+    repoUrl?: string;
+    history?: Array<{ role: "user" | "assistant"; content: string }>;
+  };
   try {
     body = await request.json();
   } catch {
@@ -44,6 +48,7 @@ export async function POST(request: NextRequest) {
     workerUrl: WORKER_URL,
     promptLength: body.prompt.length,
     repoUrl: body.repoUrl || "(default)",
+    historyLength: body.history?.length || 0,
   });
 
   try {
@@ -56,6 +61,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         prompt: body.prompt,
         ...(body.repoUrl && { repoUrl: body.repoUrl }),
+        ...(body.history?.length && { history: body.history }),
       }),
     });
 
