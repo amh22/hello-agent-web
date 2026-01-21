@@ -71,7 +71,7 @@ export function ActivityPanel({ toolHistory, turnCount, elapsedTime }: ActivityP
               className="inline-block w-1.5 h-1.5 bg-[#666666] dark:bg-[#a8a49c] rounded-full animate-pulse"
               style={{ animationDelay: "300ms" }}
             />
-            <span className="ml-1">Starting...</span>
+            <span className="ml-1">Reviewing context...</span>
           </div>
         )}
       </div>

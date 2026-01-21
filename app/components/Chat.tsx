@@ -433,6 +433,11 @@ export function Chat() {
             {message.role === "assistant" && message.usage && (
               <div className="flex justify-start mb-4 -mt-2">
                 <div className="max-w-[80%] px-4">
+                  {(!message.usage.num_tools || message.usage.num_tools === 0) && (
+                    <div className="mb-2 px-3 py-2 rounded-lg bg-[#f0e6d3] dark:bg-[#2a2520] border border-[#d4a574] dark:border-[#8b6914] text-sm text-[#8b6914] dark:text-[#d4a574]">
+                      Answered from conversation context (no tools called)
+                    </div>
+                  )}
                   <UsageDetails usage={message.usage} />
                 </div>
               </div>
