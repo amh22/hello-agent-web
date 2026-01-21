@@ -34,7 +34,7 @@ export function ActivityPanel({ toolHistory, turnCount, elapsedTime }: ActivityP
         </div>
         <div className="flex items-center gap-3 text-xs text-[#666666] dark:text-[#a8a49c] font-mono">
           {turnCount > 0 && <span>Turn {turnCount}</span>}
-          {toolHistory.length > 0 && <span>{toolHistory.length} tools</span>}
+          {toolHistory.length > 0 && <span>{toolHistory.length} Tools</span>}
           <span>{elapsedTime}s</span>
         </div>
       </div>
