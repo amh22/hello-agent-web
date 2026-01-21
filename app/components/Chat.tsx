@@ -378,7 +378,7 @@ export function Chat() {
           <button
             onClick={handlePrevQuestion}
             disabled={isLoading}
-            className="p-1 text-[#666666] dark:text-[#a8a49c] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+            className="p-1 text-[#666666] dark:text-[#a8a49c] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
             title="Previous question"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -401,7 +401,7 @@ export function Chat() {
           <button
             onClick={handleNextQuestion}
             disabled={isLoading}
-            className="p-1 text-[#666666] dark:text-[#a8a49c] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+            className="p-1 text-[#666666] dark:text-[#a8a49c] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
             title="Next question"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
