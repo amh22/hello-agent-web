@@ -9,6 +9,7 @@ interface MessageProps {
   content: string;
   isStreaming?: boolean;
   pillColor?: "blue" | "red";
+  answeredFromContext?: boolean;
 }
 
 // Preprocess markdown to ensure headings have proper newlines before them
@@ -17,7 +18,7 @@ function preprocessMarkdown(text: string): string {
   return text.replace(/([^\n])(#{1,6}\s)/g, '$1\n\n$2');
 }
 
-export function Message({ role, content, isStreaming, pillColor = "blue" }: MessageProps) {
+export function Message({ role, content, isStreaming, pillColor = "blue", answeredFromContext }: MessageProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const isUser = role === "user";
   const processedContent = preprocessMarkdown(content);
@@ -132,6 +133,11 @@ export function Message({ role, content, isStreaming, pillColor = "blue" }: Mess
             </div>
             {/* Modal content */}
             <div className="p-6 text-[#1a1a1a] dark:text-[#F5F0EB]">
+              {answeredFromContext && (
+                <div className="mb-5 px-3 py-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-700 text-sm text-green-700 dark:text-green-400">
+                  Answered from conversation context (no tools were called)
+                </div>
+              )}
               <div className="prose dark:prose-invert max-w-none prose-headings:mt-4 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-pre:bg-[#1a1a1a] prose-pre:dark:bg-[#1c1b18] prose-code:text-[#e879f9] prose-code:dark:text-[#c084fc] prose-hr:my-4 prose-hr:border-[#3d3b36] prose-table:border-collapse prose-th:border prose-th:border-[#3d3b36] prose-th:px-3 prose-th:py-2 prose-td:border prose-td:border-[#3d3b36] prose-td:px-3 prose-td:py-2">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{processedContent}</ReactMarkdown>
               </div>
