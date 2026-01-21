@@ -5,6 +5,7 @@ import { useState } from "react";
 export interface UsageData {
   total_cost_usd?: number;
   duration_ms?: number;
+  total_duration_ms?: number;
   num_turns?: number;
   num_tools?: number;
   usage?: {
@@ -73,7 +74,7 @@ export function UsageDetails({ usage }: UsageDetailsProps) {
         </svg>
         <span>
           Details ({formatCost(usage.total_cost_usd)} /{" "}
-          {formatDuration(usage.duration_ms)})
+          {formatDuration(usage.total_duration_ms ?? usage.duration_ms)})
         </span>
       </button>
 
@@ -85,7 +86,11 @@ export function UsageDetails({ usage }: UsageDetailsProps) {
               <strong className="text-[#1a1a1a] dark:text-[#F5F0EB]">Total Cost:</strong> {formatCost(usage.total_cost_usd)}
             </span>
             <span>
-              <strong className="text-[#1a1a1a] dark:text-[#F5F0EB]">Duration:</strong> {formatDuration(usage.duration_ms)}
+              <strong className="text-[#1a1a1a] dark:text-[#F5F0EB]">Time:</strong>{" "}
+              {formatDuration(usage.total_duration_ms ?? usage.duration_ms)}
+              {usage.total_duration_ms && usage.duration_ms && (
+                <> (Agent: {formatDuration(usage.duration_ms)})</>
+              )}
             </span>
             <span>
               <strong className="text-[#1a1a1a] dark:text-[#F5F0EB]">Turns:</strong> {formatNumber(usage.num_turns)}

@@ -234,12 +234,15 @@ export function Chat() {
 
       // Add the complete assistant message with usage data
       if (fullContent) {
+        const totalDurationMs = Date.now() - startTimeRef.current;
         setMessages((prev) => [
           ...prev,
           {
             role: "assistant",
             content: fullContent,
-            usage: capturedUsage ? { ...capturedUsage, num_tools: toolCount } : undefined
+            usage: capturedUsage
+              ? { ...capturedUsage, num_tools: toolCount, total_duration_ms: totalDurationMs }
+              : undefined
           },
         ]);
       }
