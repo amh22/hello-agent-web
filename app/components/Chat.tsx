@@ -64,7 +64,8 @@ const DEFAULT_REPO = "hello-agent-web";
 
 // Number of previous questions to include in conversation history
 // Each question includes its corresponding assistant response
-const HISTORY_QUESTIONS = 4;
+// Can be configured via NEXT_PUBLIC_HISTORY_QUESTIONS env var
+const HISTORY_QUESTIONS = parseInt(process.env.NEXT_PUBLIC_HISTORY_QUESTIONS || "8", 10);
 
 function validateOwner(owner: string): string | null {
   if (!owner.trim()) return "Owner is required";
@@ -193,6 +194,7 @@ export function Chat() {
       const decoder = new TextDecoder();
       let fullContent = "";
       let capturedUsage: UsageData | null = null;
+      let toolCount = 0;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -208,6 +210,7 @@ export function Chat() {
               fullContent += event.content;
               setStreamingContent(fullContent);
             } else if (event.type === "tool_use") {
+              toolCount++;
               setToolHistory((prev) => [...prev, { tool: event.tool, detail: event.detail, timestamp: Date.now() }]);
             } else if (event.type === "turn") {
               setTurnCount(event.turn);
@@ -233,7 +236,11 @@ export function Chat() {
       if (fullContent) {
         setMessages((prev) => [
           ...prev,
-          { role: "assistant", content: fullContent, usage: capturedUsage ?? undefined },
+          {
+            role: "assistant",
+            content: fullContent,
+            usage: capturedUsage ? { ...capturedUsage, num_tools: toolCount } : undefined
+          },
         ]);
       }
     } catch (error) {

@@ -6,6 +6,7 @@ export interface UsageData {
   total_cost_usd?: number;
   duration_ms?: number;
   num_turns?: number;
+  num_tools?: number;
   usage?: {
     input_tokens?: number;
     cache_creation_input_tokens?: number;
@@ -89,6 +90,11 @@ export function UsageDetails({ usage }: UsageDetailsProps) {
             <span>
               <strong className="text-[#1a1a1a] dark:text-[#F5F0EB]">Turns:</strong> {formatNumber(usage.num_turns)}
             </span>
+            {usage.num_tools !== undefined && usage.num_tools > 0 && (
+              <span>
+                <strong className="text-[#1a1a1a] dark:text-[#F5F0EB]">Tools:</strong> {formatNumber(usage.num_tools)}
+              </span>
+            )}
           </div>
 
           {/* Token usage - calculated from modelUsage for accurate totals */}

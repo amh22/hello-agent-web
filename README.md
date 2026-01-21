@@ -157,6 +157,7 @@ First, deploy [hello-agent-web-worker](https://github.com/amh22/hello-agent-web-
 |----------|----------|-------------|
 | `CLOUDFLARE_WORKER_URL` | Yes | URL of the hello-agent-web-worker |
 | `DEMO_PASSWORD` | Yes | Password required to access the chat |
+| `NEXT_PUBLIC_HISTORY_QUESTIONS` | No | Number of previous questions to include in conversation history (default: 8) |
 
 ### Streaming Architecture
 
