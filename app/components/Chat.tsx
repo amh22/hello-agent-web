@@ -207,6 +207,10 @@ export function Chat() {
           try {
             const event = JSON.parse(line);
             if (event.type === "text") {
+              // Add paragraph break between text blocks from different turns
+              if (fullContent && !fullContent.endsWith("\n")) {
+                fullContent += "\n\n";
+              }
               fullContent += event.content;
               setStreamingContent(fullContent);
             } else if (event.type === "tool_use") {
