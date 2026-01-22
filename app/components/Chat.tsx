@@ -276,7 +276,7 @@ export function Chat() {
   };
 
   return (
-    <div className="flex flex-col h-[600px] max-w-2xl mx-auto bg-white dark:bg-[#0d0d0d]/95 rounded-2xl shadow-lg border border-[#1a1a1a] dark:border-[#00ff00]/15 dark:shadow-[0_0_20px_rgba(0,255,0,0.08)]">
+    <div className="flex flex-col h-[85vh] md:h-[750px] max-w-2xl mx-auto bg-white dark:bg-[#0d0d0d]/95 rounded-2xl shadow-lg border border-[#1a1a1a] dark:border-[#00ff00]/15 dark:shadow-[0_0_20px_rgba(0,255,0,0.08)]">
       {/* GitHub repo inputs */}
       <div className="border-b border-[#1a1a1a] dark:border-[#3d3b36] px-6 py-4">
         <label className="block text-sm font-medium text-[#1a1a1a] dark:text-[#d5d0c8] mb-2">
@@ -330,8 +330,8 @@ export function Chat() {
 
       {/* Header with pill toggles and question carousel */}
       <div className="border-b border-[#1a1a1a] dark:border-[#3d3b36] px-4 pt-[18px] pb-[24px] bg-[#f0f0f0] dark:bg-[#1a1a1a]">
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <p className="text-base text-[#666666] dark:text-[#d5d0c8]">
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <p className="text-sm md:text-base text-[#666666] dark:text-[#d5d0c8]">
             See how deep the rabbit hole goes
           </p>
 

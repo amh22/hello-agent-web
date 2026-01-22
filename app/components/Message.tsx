@@ -50,7 +50,7 @@ export function Message({ role, content, isStreaming, pillColor = "blue", answer
   };
 
   const markdownContent = (
-    <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:mt-4 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-pre:bg-[#1a1a1a] prose-pre:dark:bg-[#1c1b18] prose-code:text-[#e879f9] prose-code:dark:text-[#c084fc] prose-hr:my-4 prose-hr:border-[#3d3b36] prose-table:border-collapse prose-th:border prose-th:border-[#3d3b36] prose-th:px-3 prose-th:py-2 prose-td:border prose-td:border-[#3d3b36] prose-td:px-3 prose-td:py-2">
+    <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:mt-4 prose-headings:mb-2 prose-headings:font-semibold prose-h1:text-base prose-h2:text-sm prose-h3:text-sm prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-pre:bg-[#1a1a1a] prose-pre:dark:bg-[#1c1b18] prose-code:text-[#e879f9] prose-code:dark:text-[#c084fc] prose-hr:my-4 prose-hr:border-[#3d3b36] prose-table:border-collapse prose-th:border prose-th:border-[#3d3b36] prose-th:px-3 prose-th:py-2 prose-td:border prose-td:border-[#3d3b36] prose-td:px-3 prose-td:py-2">
       <ReactMarkdown remarkPlugins={[remarkGfm]}>{processedContent}</ReactMarkdown>
     </div>
   );
@@ -138,7 +138,7 @@ export function Message({ role, content, isStreaming, pillColor = "blue", answer
                   Answered from conversation context (no tools were called)
                 </div>
               )}
-              <div className="prose dark:prose-invert max-w-none prose-headings:mt-4 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-pre:bg-[#1a1a1a] prose-pre:dark:bg-[#1c1b18] prose-code:text-[#e879f9] prose-code:dark:text-[#c084fc] prose-hr:my-4 prose-hr:border-[#3d3b36] prose-table:border-collapse prose-th:border prose-th:border-[#3d3b36] prose-th:px-3 prose-th:py-2 prose-td:border prose-td:border-[#3d3b36] prose-td:px-3 prose-td:py-2">
+              <div className="prose dark:prose-invert max-w-none prose-headings:mt-4 prose-headings:mb-2 prose-headings:font-semibold prose-h1:text-[22px] prose-h2:text-lg prose-h3:text-base prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-pre:bg-[#1a1a1a] prose-pre:dark:bg-[#1c1b18] prose-code:text-[#e879f9] prose-code:dark:text-[#c084fc] prose-hr:my-4 prose-hr:border-[#3d3b36] prose-table:border-collapse prose-th:border prose-th:border-[#3d3b36] prose-th:px-3 prose-th:py-2 prose-td:border prose-td:border-[#3d3b36] prose-td:px-3 prose-td:py-2">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{processedContent}</ReactMarkdown>
               </div>
             </div>
