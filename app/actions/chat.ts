@@ -1,6 +1,13 @@
 "use server";
 
 /**
+ * NOTE: This Server Action is currently NOT IN USE.
+ * The app uses the API Route at /api/chat/route.ts instead.
+ * Server Actions had streaming issues in Vercel production.
+ * This file is kept for reference/fallback.
+ */
+
+/**
  * Chat Server Action
  *
  * This action handles chat requests by calling the Cloudflare Worker.
