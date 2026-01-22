@@ -329,9 +329,9 @@ export function Chat() {
       </div>
 
       {/* Header with pill toggles and question carousel */}
-      <div className="border-b border-[#1a1a1a] dark:border-[#3d3b36] px-4 py-3">
+      <div className="border-b border-[#1a1a1a] dark:border-[#3d3b36] px-4 pt-[18px] pb-[24px] bg-[#f0f0f0] dark:bg-[#1a1a1a]">
         <div className="flex items-center justify-center gap-3 mb-2">
-          <p className="text-sm text-[#666666] dark:text-[#d5d0c8]">
+          <p className="text-base text-[#666666] dark:text-[#d5d0c8]">
             See how deep the rabbit hole goes
           </p>
 
@@ -340,7 +340,7 @@ export function Chat() {
             <button
               onClick={() => handlePillSelect("blue")}
               disabled={isLoading}
-              className={`transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`transition-all disabled:cursor-not-allowed ${
                 selectedPill === "blue"
                   ? "scale-110 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]"
                   : "opacity-50 hover:opacity-100 hover:scale-105"
@@ -366,7 +366,7 @@ export function Chat() {
             <button
               onClick={() => handlePillSelect("red")}
               disabled={isLoading}
-              className={`transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`transition-all disabled:cursor-not-allowed ${
                 selectedPill === "red"
                   ? "scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]"
                   : "opacity-50 hover:opacity-100 hover:scale-105"
