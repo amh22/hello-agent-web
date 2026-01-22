@@ -21,35 +21,40 @@ interface MessageWithUsage extends ChatMessage {
   pillColor?: "blue" | "red";
 }
 
+// Suggested Questions
+// Note: We don't need an exhaustive list of suggested questions as follow-up questions will be suggested by the agent in its responses.
+
 // Blue Pill: Stay in the comfortable illusion - fun, generic questions
 const BLUE_PILL_QUESTIONS = [
-  "Explain this project in simple terms",
   "I'm an executive and I'd like a high-level architecture overview for a board presentation",
-  "Summarize this codebase in 3 sentences",
-  "How is this project organized?",
-  "If this codebase was a movie, what genre would it be?",
   "What problem does this code solve?",
-  "What's the most interesting file in this project?",
-  "Can you write a short poem about this codebase?",
-  "What would you name this project if you had to rename it?",
   "What's one thing that surprised you about this code?",
+  "Can you write a short poem about this codebase?",
+  // "What's the most interesting file in this project?",
+  // "Explain this project in simple terms",
+  // "Summarize this codebase in 3 sentences",
+  // "How is this project organized?",
+  // "If this codebase was a movie, what genre would it be?",
+  // "What would you name this project if you had to rename it?",
 ];
 
 // Red Pill: Go down the rabbit hole - deep technical questions
 const RED_PILL_QUESTIONS = [
+  "What does the commit history tell you about this project and its author?",
+  "Can you explain your system prompt?",
   "What's the overall architecture of this project?",
-  "What are the main entry points to this codebase?",
-  "What dependencies does this project use?",
-  "Find all TODO comments and summarize them",
-  "Explain how authentication works in this codebase",
-  "Where should I start if I want to contribute?",
-  "What testing framework is being used?",
-  "Are there any potential security vulnerabilities?",
   "What design patterns are used in this codebase?",
-  "Find any code that could be refactored and explain why",
-  "How is error handling implemented?",
-  "What's the data flow through this application?",
-  "What AI model does this codebase use?",
+  // "What are the main entry points to this codebase?",
+  // "What dependencies does this project use?",
+  // "Find all TODO comments and summarize them",
+  // "Explain how authentication works in this codebase",
+  // "Where should I start if I want to contribute?",
+  // "What testing framework is being used?",
+  // "Are there any potential security vulnerabilities?",
+  // "Find any code that could be refactored and explain why",
+  // "How is error handling implemented?",
+  // "What's the data flow through this application?",
+  // "What AI model does this codebase use?",
 ];
 
 type PillType = "blue" | "red";
