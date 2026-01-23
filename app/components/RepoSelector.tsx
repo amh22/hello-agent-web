@@ -95,7 +95,7 @@ export function RepoSelector({
   );
 
   return (
-    <div className="px-6 py-3 bg-[#F5F0EB] dark:bg-[#1c1b18] border-b border-[#e0e0e0] dark:border-[#3d3b36]">
+    <div className="pl-6 pr-16 lg:px-6 py-3 bg-[#F5F0EB] dark:bg-[#1c1b18] border-b border-[#e0e0e0] dark:border-[#3d3b36]">
       <div className="max-w-2xl mx-auto">
         {!isEditing ? (
           /* Compact Badge View */
@@ -106,10 +106,11 @@ export function RepoSelector({
                 href={`https://github.com/${repoOwner}/${repoName}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-[#2a2925] border border-[#d0d0d0] dark:border-[#3d3b36] hover:border-[#999999] dark:hover:border-[#555555] transition-colors"
+                title={`${repoOwner}/${repoName}`}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-[#2a2925] border border-[#d0d0d0] dark:border-[#3d3b36] hover:border-[#999999] dark:hover:border-[#555555] transition-colors min-w-0"
               >
                 <GitHubIcon />
-                <span className="text-sm font-medium text-[#1a1a1a] dark:text-[#F5F0EB]">
+                <span className="text-sm font-medium text-[#1a1a1a] dark:text-[#F5F0EB] truncate max-w-[150px] sm:max-w-[200px] md:max-w-none">
                   {repoOwner}/{repoName}
                 </span>
               </a>
@@ -130,18 +131,19 @@ export function RepoSelector({
               <button
                 onClick={handleNewChat}
                 disabled={isLoading}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-[#666666] dark:text-[#a8a49c] hover:bg-[#e8e8e8] dark:hover:bg-[#3d3b36] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-1.5 p-1.5 md:px-3 md:py-1.5 rounded-md bg-[#e8e8e8] dark:bg-[#3d3b36] border border-[#d0d0d0] dark:border-[#4d4b46] text-[#555555] dark:text-[#b8b4ac] hover:bg-[#d8d8d8] dark:hover:bg-[#4d4b46] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                 title="Start new chat"
               >
                 <NewChatIcon />
-                <span>New Chat</span>
+                <span className="hidden md:inline text-sm">New Chat</span>
               </button>
             )}
           </div>
         ) : (
           /* Edit Mode - Input Fields */
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="space-y-3">
+            {/* Inputs row */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-[#666666] dark:text-[#a8a49c]">github.com/</span>
                 <input
@@ -154,14 +156,14 @@ export function RepoSelector({
                   placeholder="owner"
                   disabled={isLoading}
                   autoFocus
-                  className={`w-28 px-3 py-2 text-sm rounded-lg border bg-white dark:bg-[#2a2925] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#888888] dark:placeholder-[#666666] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50 ${
+                  className={`flex-1 sm:w-28 sm:flex-none px-3 py-2 text-sm rounded-lg border bg-white dark:bg-[#2a2925] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#888888] dark:placeholder-[#666666] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50 ${
                     !repoOwner.trim()
                       ? "border-red-400/50 dark:border-red-500/50"
                       : "border-[#d0d0d0] dark:border-[#3d3b36]"
                   }`}
                 />
               </div>
-              <div className="flex items-center gap-2 flex-1 min-w-[180px]">
+              <div className="flex items-center gap-2">
                 <span className="text-sm text-[#666666] dark:text-[#a8a49c]">/</span>
                 <input
                   type="text"
@@ -179,6 +181,10 @@ export function RepoSelector({
                   }`}
                 />
               </div>
+            </div>
+
+            {/* Buttons row */}
+            <div className="flex items-center gap-2">
               <button
                 onClick={handleCancel}
                 disabled={isLoading}
@@ -196,7 +202,8 @@ export function RepoSelector({
                 </button>
               )}
             </div>
-            <p className="mt-2 text-xs text-[#888888] dark:text-[#777777]">
+
+            <p className="text-xs text-[#888888] dark:text-[#777777]">
               Enter a public GitHub repository to explore. Private repos are not supported.
             </p>
             {repoError && (

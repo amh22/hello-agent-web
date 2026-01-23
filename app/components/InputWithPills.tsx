@@ -191,7 +191,7 @@ export function InputWithPills({
 
               {/* Expanded prompts section */}
               {expandedPill && (
-                <div className="mt-3 pt-3 border-t border-[#e8e8e8] dark:border-[#3d3b36] space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="mt-3 pt-3 border-t border-[#e8e8e8] dark:border-[#3d3b36] space-y-2 animate-in fade-in slide-in-from-top-2 duration-200 max-h-[30vh] sm:max-h-[40vh] overflow-y-auto">
                   {currentQuestions.map((question, index) => (
                     <button
                       key={index}
