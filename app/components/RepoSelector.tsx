@@ -95,7 +95,7 @@ export function RepoSelector({
   );
 
   return (
-    <div className="pl-6 pr-16 lg:px-6 py-3 bg-[#F5F0EB] dark:bg-[#1c1b18] border-b border-[#e0e0e0] dark:border-[#3d3b36]">
+    <div className="pl-6 pr-16 lg:px-6 py-3 bg-[#FAF9F6] dark:bg-[#1c1b18] border-b border-[#e0e0e0] dark:border-[#3d3b36]">
       <div className="max-w-2xl mx-auto">
         {!isEditing ? (
           /* Compact Badge View */

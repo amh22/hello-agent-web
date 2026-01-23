@@ -5,7 +5,7 @@ import { MatrixBackground } from "./components/MatrixBackground";
 
 export default function Home() {
   return (
-    <div className="h-screen overflow-hidden bg-[#F5F0EB] dark:bg-[#1c1b18] relative flex flex-col">
+    <div className="h-screen overflow-hidden bg-[#FAF9F6] dark:bg-[#1c1b18] relative flex flex-col">
       <MatrixBackground />
 
       {/* Theme Toggle - fixed position, aligned with header */}

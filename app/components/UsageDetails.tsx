@@ -104,7 +104,7 @@ export function UsageDetails({ usage }: UsageDetailsProps) {
 
           {/* Token usage - calculated from modelUsage for accurate totals */}
           {usage.modelUsage && Object.keys(usage.modelUsage).length > 0 && (
-            <div className="bg-[#F5F0EB] dark:bg-[#1c1b18] rounded-xl border border-[#1a1a1a] dark:border-[#3d3b36] p-2">
+            <div className="bg-[#FAF9F6] dark:bg-[#1c1b18] rounded-xl border border-[#1a1a1a] dark:border-[#3d3b36] p-2">
               <div className="font-medium mb-1 text-[#1a1a1a] dark:text-[#F5F0EB]">Token Usage</div>
               <div className="flex flex-wrap gap-x-4 gap-y-1">
                 {(() => {
@@ -136,7 +136,7 @@ export function UsageDetails({ usage }: UsageDetailsProps) {
 
           {/* Model breakdown */}
           {usage.modelUsage && Object.keys(usage.modelUsage).length > 0 && (
-            <div className="bg-[#F5F0EB] dark:bg-[#1c1b18] rounded-xl border border-[#1a1a1a] dark:border-[#3d3b36] p-2">
+            <div className="bg-[#FAF9F6] dark:bg-[#1c1b18] rounded-xl border border-[#1a1a1a] dark:border-[#3d3b36] p-2">
               <div className="font-medium mb-1 text-[#1a1a1a] dark:text-[#F5F0EB]">Models Used</div>
               <div className="space-y-1">
                 {Object.entries(usage.modelUsage).map(([model, stats]) => (
@@ -189,7 +189,7 @@ function RawDetails({ usage }: { usage: UsageData }) {
       </button>
 
       {isExpanded && (
-        <pre className="mt-2 p-2 bg-[#F5F0EB] dark:bg-[#1c1b18] border border-[#1a1a1a] dark:border-[#3d3b36] rounded-xl text-[10px] overflow-x-auto max-h-64 overflow-y-auto text-[#1a1a1a] dark:text-[#F5F0EB]">
+        <pre className="mt-2 p-2 bg-[#FAF9F6] dark:bg-[#1c1b18] border border-[#1a1a1a] dark:border-[#3d3b36] rounded-xl text-[10px] overflow-x-auto max-h-64 overflow-y-auto text-[#1a1a1a] dark:text-[#F5F0EB]">
           {JSON.stringify(usage, null, 2)}
         </pre>
       )}

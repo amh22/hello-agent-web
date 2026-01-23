@@ -119,7 +119,7 @@ export function InputWithPills({
   };
 
   return (
-    <div className="px-4 py-4 bg-[#F5F0EB] dark:bg-[#1c1b18] border-t border-[#e0e0e0] dark:border-[#3d3b36]">
+    <div className="px-4 py-4 bg-[#FAF9F6] dark:bg-[#1c1b18] border-t border-[#e0e0e0] dark:border-[#3d3b36]">
       <div className="max-w-2xl mx-auto">
         <form onSubmit={onSubmit}>
           {/* Input container with integrated pills */}
