@@ -59,10 +59,10 @@ export function Message({ role, content, isStreaming, pillColor = "blue", answer
     <>
       <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4`}>
         <div
-          className={`max-w-[80%] rounded-2xl px-4 py-3 border ${
+          className={`rounded-2xl px-4 py-3 border ${
             isUser
-              ? getUserBubbleClasses()
-              : "bg-white dark:bg-[#2a2925] text-[#1a1a1a] dark:text-[#F5F0EB] border-[#1a1a1a] dark:border-[#3d3b36]"
+              ? "max-w-[80%] " + getUserBubbleClasses()
+              : "w-full bg-white dark:bg-[#2a2925] text-[#1a1a1a] dark:text-[#F5F0EB] border-[#1a1a1a] dark:border-[#3d3b36]"
           }`}
         >
           <div className="flex items-center justify-between gap-2 mb-1">
