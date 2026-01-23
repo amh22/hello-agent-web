@@ -4,7 +4,8 @@ import { useState, useRef, useEffect, FormEvent } from "react";
 import { Message } from "./Message";
 import { UsageDetails, type UsageData } from "./UsageDetails";
 import { ActivityPanel, type ToolUse } from "./ActivityPanel";
-import { chat } from "../actions/chat";
+import { RepoSelector } from "./RepoSelector";
+import { InputWithPills, type PillType } from "./InputWithPills";
 
 // Toggle between Server Action and API Route for streaming
 // Server Action: simpler, but may have buffering issues in some environments
@@ -21,44 +22,6 @@ interface MessageWithUsage extends ChatMessage {
   pillColor?: "blue" | "red";
 }
 
-// Suggested Questions
-// Note: We don't need an exhaustive list of suggested questions as follow-up questions will be suggested by the agent in its responses.
-
-// Blue Pill: Stay in the comfortable illusion - fun, generic questions
-const BLUE_PILL_QUESTIONS = [
-  "I'm an executive and I'd like a high-level architecture overview for a board presentation",
-  "What problem does this code solve?",
-  "What's one thing that surprised you about this code?",
-  "Can you write a short poem about this codebase?",
-  // "What's the most interesting file in this project?",
-  // "Explain this project in simple terms",
-  // "Summarize this codebase in 3 sentences",
-  // "How is this project organized?",
-  // "If this codebase was a movie, what genre would it be?",
-  // "What would you name this project if you had to rename it?",
-];
-
-// Red Pill: Go down the rabbit hole - deep technical questions
-const RED_PILL_QUESTIONS = [
-  "What does the commit history tell you about this project and its author?",
-  "Can you explain your system prompt?",
-  "What's the overall architecture of this project?",
-  "What design patterns are used in this codebase?",
-  // "What are the main entry points to this codebase?",
-  // "What dependencies does this project use?",
-  // "Find all TODO comments and summarize them",
-  // "Explain how authentication works in this codebase",
-  // "Where should I start if I want to contribute?",
-  // "What testing framework is being used?",
-  // "Are there any potential security vulnerabilities?",
-  // "Find any code that could be refactored and explain why",
-  // "How is error handling implemented?",
-  // "What's the data flow through this application?",
-  // "What AI model does this codebase use?",
-];
-
-type PillType = "blue" | "red";
-
 // Validation patterns for GitHub owner and repo names
 const OWNER_PATTERN = /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$/;
 const REPO_PATTERN = /^[a-zA-Z0-9._-]+$/;
@@ -68,8 +31,6 @@ const DEFAULT_OWNER = "amh22";
 const DEFAULT_REPO = "hello-agent-web";
 
 // Number of previous questions to include in conversation history
-// Each question includes its corresponding assistant response
-// Can be configured via NEXT_PUBLIC_HISTORY_QUESTIONS env var
 const HISTORY_QUESTIONS = parseInt(process.env.NEXT_PUBLIC_HISTORY_QUESTIONS || "8", 10);
 
 function validateOwner(owner: string): string | null {
@@ -98,24 +59,17 @@ export function Chat() {
   const [turnCount, setTurnCount] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [selectedPill, setSelectedPill] = useState<PillType>("blue");
-  const [questionIndex, setQuestionIndex] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const startTimeRef = useRef<number>(0);
 
-  const currentQuestions = selectedPill === "blue" ? BLUE_PILL_QUESTIONS : RED_PILL_QUESTIONS;
-  const currentQuestion = currentQuestions[questionIndex % currentQuestions.length];
+  const hasMessages = messages.length > 0 || isLoading;
 
-  const handlePrevQuestion = () => {
-    setQuestionIndex((prev) => (prev - 1 + currentQuestions.length) % currentQuestions.length);
-  };
-
-  const handleNextQuestion = () => {
-    setQuestionIndex((prev) => (prev + 1) % currentQuestions.length);
-  };
-
-  const handlePillSelect = (pill: PillType) => {
-    setSelectedPill(pill);
-    setQuestionIndex(0);
+  const handleNewChat = () => {
+    setMessages([]);
+    setInput("");
+    setStreamingContent("");
+    setToolHistory([]);
+    setSelectedPill("blue");
   };
 
   const scrollToBottom = () => {
@@ -168,32 +122,26 @@ export function Chat() {
       let stream: ReadableStream<Uint8Array>;
 
       // Collect conversation history (last N questions and their responses)
-      // Each question = 1 user message + 1 assistant response = 2 array items
       const history = messages.slice(-(HISTORY_QUESTIONS * 2)).map(m => ({
         role: m.role,
         content: m.content,
       }));
 
-      if (USE_SERVER_ACTION) {
-        // Option 1: Server Action - simpler, streams response.body directly
-        stream = await chat([...messages, userMessage], repoUrl);
-      } else {
-        // Option 2: API Route - Edge runtime, guaranteed streaming
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            prompt: userMessage.content,
-            repoUrl,
-            history,
-          }),
-        });
+      // API Route - Edge runtime, guaranteed streaming
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: userMessage.content,
+          repoUrl,
+          history,
+        }),
+      });
 
-        if (!response.body) {
-          throw new Error(`Request failed: ${response.status}`);
-        }
-        stream = response.body;
+      if (!response.body) {
+        throw new Error(`Request failed: ${response.status}`);
       }
+      stream = response.body;
 
       const reader = stream.getReader();
       const decoder = new TextDecoder();
@@ -271,230 +219,91 @@ export function Chat() {
     }
   };
 
-  const handleSuggestionClick = (question: string) => {
-    setInput(question);
-  };
-
   return (
-    <div className="flex flex-col h-[85vh] md:h-[750px] max-w-2xl mx-auto bg-white dark:bg-[#0d0d0d]/95 rounded-2xl shadow-lg border border-[#1a1a1a] dark:border-[#00ff00]/15 dark:shadow-[0_0_20px_rgba(0,255,0,0.08)]">
-      {/* GitHub repo inputs */}
-      <div className="border-b border-[#1a1a1a] dark:border-[#3d3b36] px-6 py-4">
-        <label className="block text-sm font-medium text-[#1a1a1a] dark:text-[#d5d0c8] mb-2">
-          GitHub Repository
-        </label>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-[#666666] dark:text-[#a8a49c]">github.com/</span>
-            <input
-              type="text"
-              value={repoOwner}
-              onChange={(e) => {
-                setRepoOwner(e.target.value);
-                setRepoError(null);
-              }}
-              placeholder="owner"
-              disabled={isLoading}
-              className={`w-28 px-3 py-2 text-sm rounded-lg border bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#888888] dark:placeholder-[#666666] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50 ${
-                !repoOwner.trim()
-                  ? "border-red-400/50 dark:border-red-500/50"
-                  : "border-[#1a1a1a] dark:border-[#3d3b36]"
-              }`}
-            />
-          </div>
-          <div className="flex items-center gap-2 flex-1 min-w-[180px]">
-            <span className="text-sm text-[#666666] dark:text-[#a8a49c]">/</span>
-            <input
-              type="text"
-              value={repoName}
-              onChange={(e) => {
-                setRepoName(e.target.value);
-                setRepoError(null);
-              }}
-              placeholder="repo"
-              disabled={isLoading}
-              className={`flex-1 px-3 py-2 text-sm rounded-lg border bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#888888] dark:placeholder-[#666666] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50 ${
-                !repoName.trim()
-                  ? "border-red-400/50 dark:border-red-500/50"
-                  : "border-[#1a1a1a] dark:border-[#3d3b36]"
-              }`}
-            />
-          </div>
-        </div>
-        <p className="mt-2 text-xs text-[#888888] dark:text-[#777777]">
-          Enter a public GitHub repository to explore. Private repos are not supported.
-        </p>
-        {repoError && (
-          <p className="mt-1 text-xs text-red-500 dark:text-red-400">{repoError}</p>
-        )}
+    <div className="flex flex-col h-full relative z-20">
+      {/* Zone 1: Fixed Top - Repo Selector */}
+      <div className="shrink-0">
+        <RepoSelector
+          repoOwner={repoOwner}
+          repoName={repoName}
+          repoError={repoError}
+          isLoading={isLoading}
+          hasMessages={messages.length > 0}
+          onOwnerChange={setRepoOwner}
+          onRepoChange={setRepoName}
+          onErrorClear={() => setRepoError(null)}
+          onNewChat={handleNewChat}
+        />
       </div>
 
-      {/* Header with pill toggles and question carousel */}
-      <div className="border-b border-[#1a1a1a] dark:border-[#3d3b36] px-4 pt-[18px] pb-[24px] bg-[#f0f0f0] dark:bg-[#1a1a1a]">
-        <div className="flex items-center justify-center gap-3 mb-3">
-          <p className="text-sm md:text-base text-[#666666] dark:text-[#d5d0c8]">
-            See how deep the rabbit hole goes
-          </p>
-
-          {/* Pill toggles */}
-          <div className="flex gap-3">
-            <button
-              onClick={() => handlePillSelect("blue")}
-              disabled={isLoading}
-              className={`transition-all disabled:cursor-not-allowed ${
-                selectedPill === "blue"
-                  ? "scale-110 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]"
-                  : "opacity-50 hover:opacity-100 hover:scale-105"
-              }`}
-              title="Blue pill: Stay comfortable with fun questions"
-            >
-              <svg width="24" height="15" viewBox="0 0 32 20">
-                <defs>
-                  <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#60a5fa" />
-                    <stop offset="50%" stopColor="#3b82f6" />
-                    <stop offset="100%" stopColor="#1d4ed8" />
-                  </linearGradient>
-                  <linearGradient id="blueShine" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="white" stopOpacity="0.6" />
-                    <stop offset="50%" stopColor="white" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <ellipse cx="16" cy="10" rx="15" ry="9" fill="url(#blueGradient)" />
-                <ellipse cx="16" cy="7" rx="10" ry="4" fill="url(#blueShine)" />
-              </svg>
-            </button>
-            <button
-              onClick={() => handlePillSelect("red")}
-              disabled={isLoading}
-              className={`transition-all disabled:cursor-not-allowed ${
-                selectedPill === "red"
-                  ? "scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]"
-                  : "opacity-50 hover:opacity-100 hover:scale-105"
-              }`}
-              title="Red pill: Go down the rabbit hole with deep technical questions"
-            >
-              <svg width="24" height="15" viewBox="0 0 32 20">
-                <defs>
-                  <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#f87171" />
-                    <stop offset="50%" stopColor="#ef4444" />
-                    <stop offset="100%" stopColor="#b91c1c" />
-                  </linearGradient>
-                  <linearGradient id="redShine" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="white" stopOpacity="0.6" />
-                    <stop offset="50%" stopColor="white" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <ellipse cx="16" cy="10" rx="15" ry="9" fill="url(#redGradient)" />
-                <ellipse cx="16" cy="7" rx="10" ry="4" fill="url(#redShine)" />
-              </svg>
-            </button>
+      {/* Zone 2: Scrollable Middle - Messages or Empty State */}
+      <div className="flex-1 overflow-y-auto">
+        {!hasMessages ? (
+          /* Empty State - Branding in center */
+          <div className="h-full flex flex-col items-center justify-center pb-8">
+            <h1 className="text-5xl md:text-6xl font-bold text-[#1a1a1a] dark:text-[#F5F0EB] mb-4 tracking-tight">
+              Neo
+            </h1>
+            <p className="text-lg md:text-xl text-[#666666] dark:text-[#a8a49c] mb-2 text-center">
+              See the code for what it really is
+            </p>
+            <p className="text-sm text-[#888888] dark:text-[#777777] max-w-md text-center">
+              Point Neo at any public GitHub repository. It reads, searches, and decodes the codebase for you.
+            </p>
           </div>
-        </div>
-
-        {/* Question carousel */}
-        <div className="flex items-center justify-center gap-1 sm:gap-2 px-1">
-          <button
-            onClick={handlePrevQuestion}
-            disabled={isLoading}
-            className="p-1 text-[#666666] dark:text-[#a8a49c] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-            title="Previous question"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-
-          <button
-            onClick={() => handleSuggestionClick(currentQuestion)}
-            disabled={isLoading}
-            className={`text-xs px-3 sm:px-4 py-2 rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-1 min-w-0 ${
-              selectedPill === "blue"
-                ? "bg-blue-50 dark:bg-blue-500/15 border-blue-300 dark:border-blue-500/40 text-[#1a1a1a] dark:text-blue-100 hover:bg-blue-100 dark:hover:bg-blue-500/25"
-                : "bg-red-50 dark:bg-red-500/15 border-red-300 dark:border-red-500/40 text-[#1a1a1a] dark:text-red-100 hover:bg-red-100 dark:hover:bg-red-500/25"
-            }`}
-          >
-            {currentQuestion}
-          </button>
-
-          <button
-            onClick={handleNextQuestion}
-            disabled={isLoading}
-            className="p-1 text-[#666666] dark:text-[#a8a49c] hover:text-[#1a1a1a] dark:hover:text-[#F5F0EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-            title="Next question"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      {/* Messages area */}
-      <div className="flex-1 overflow-y-auto p-4">
-        {messages.map((message, index) => (
-          <div key={index}>
-            <Message
-                role={message.role}
-                content={message.content}
-                pillColor={message.pillColor || selectedPill}
-                answeredFromContext={message.role === "assistant" && message.usage && (!message.usage.num_tools || message.usage.num_tools === 0)}
-              />
-            {message.role === "assistant" && message.usage && (
-              <div className="flex justify-start mb-4 -mt-2">
-                <div className="max-w-[80%] px-4">
-                  {(!message.usage.num_tools || message.usage.num_tools === 0) && (
-                    <div className="mt-1 mb-3 px-3 py-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-700 text-sm text-green-700 dark:text-green-400">
-                      Answered from conversation context (no tools were called)
+        ) : (
+          /* Active State - Messages */
+          <div className="max-w-2xl mx-auto pl-6 pr-3 pt-4 pb-8">
+            {messages.map((message, index) => (
+              <div key={index}>
+                <Message
+                  role={message.role}
+                  content={message.content}
+                  pillColor={message.pillColor || selectedPill}
+                  answeredFromContext={message.role === "assistant" && message.usage && (!message.usage.num_tools || message.usage.num_tools === 0)}
+                />
+                {message.role === "assistant" && message.usage && (
+                  <div className="flex justify-start mb-4 -mt-2">
+                    <div className="max-w-[80%] px-4">
+                      {(!message.usage.num_tools || message.usage.num_tools === 0) && (
+                        <div className="mt-1 mb-3 px-3 py-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-700 text-sm text-green-700 dark:text-green-400">
+                          Answered from conversation context (no tools were called)
+                        </div>
+                      )}
+                      <UsageDetails usage={message.usage} />
                     </div>
-                  )}
-                  <UsageDetails usage={message.usage} />
-                </div>
+                  </div>
+                )}
               </div>
+            ))}
+
+            {/* Streaming message and activity panel during loading */}
+            {isLoading && (
+              <>
+                {streamingContent && (
+                  <Message role="assistant" content={streamingContent} isStreaming pillColor={selectedPill} />
+                )}
+                <ActivityPanel toolHistory={toolHistory} turnCount={turnCount} elapsedTime={elapsedTime} />
+              </>
             )}
+
+            <div ref={messagesEndRef} />
           </div>
-        ))}
-
-        {/* Streaming message and activity panel during loading */}
-        {isLoading && (
-          <>
-            {streamingContent && (
-              <Message role="assistant" content={streamingContent} isStreaming pillColor={selectedPill} />
-            )}
-            <ActivityPanel toolHistory={toolHistory} turnCount={turnCount} elapsedTime={elapsedTime} />
-          </>
         )}
-
-        <div ref={messagesEndRef} />
       </div>
 
-      {/* Input area */}
-      <form
-        onSubmit={handleSubmit}
-        className="border-t border-[#1a1a1a] dark:border-[#3d3b36] p-4"
-      >
-        <div className="flex h-[38px] gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about this codebase..."
-            disabled={isLoading}
-            className="flex-1 h-full px-3 text-sm rounded-lg border border-[#1a1a1a] dark:border-[#3d3b36] bg-white dark:bg-[#1c1b18] text-[#1a1a1a] dark:text-[#F5F0EB] placeholder-[#666666] dark:placeholder-[#a8a49c] focus:outline-none focus:ring-2 focus:ring-[#6B4C7A] disabled:opacity-50"
-          />
-          <button
-            type="submit"
-            disabled={isLoading || !input.trim()}
-            className={`h-full px-4 text-sm rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-              selectedPill === "blue"
-                ? "bg-blue-100 dark:bg-blue-600 text-blue-900 dark:text-white border-blue-300 dark:border-blue-500 hover:bg-blue-200 dark:hover:bg-blue-500"
-                : "bg-red-100 dark:bg-red-600 text-red-900 dark:text-white border-red-300 dark:border-red-500 hover:bg-red-200 dark:hover:bg-red-500"
-            }`}
-          >
-            Send
-          </button>
-        </div>
-      </form>
+      {/* Zone 3: Fixed Bottom - Input with Pills */}
+      <div className="shrink-0">
+        <InputWithPills
+          input={input}
+          isLoading={isLoading}
+          selectedPill={selectedPill}
+          hasMessages={hasMessages}
+          onInputChange={setInput}
+          onSubmit={handleSubmit}
+          onPillSelect={setSelectedPill}
+        />
+      </div>
     </div>
   );
 }
