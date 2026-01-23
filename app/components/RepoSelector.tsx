@@ -141,9 +141,9 @@ export function RepoSelector({
           </div>
         ) : (
           /* Edit Mode - Input Fields */
-          <div className="space-y-3">
-            {/* Inputs row */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          <div className="space-y-2">
+            {/* Inputs and buttons - stack on mobile, inline on desktop */}
+            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-[#666666] dark:text-[#a8a49c]">github.com/</span>
                 <input
@@ -163,7 +163,7 @@ export function RepoSelector({
                   }`}
                 />
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 sm:flex-1 sm:min-w-[180px]">
                 <span className="text-sm text-[#666666] dark:text-[#a8a49c]">/</span>
                 <input
                   type="text"
@@ -181,26 +181,25 @@ export function RepoSelector({
                   }`}
                 />
               </div>
-            </div>
-
-            {/* Buttons row */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleCancel}
-                disabled={isLoading}
-                className="px-4 py-2 text-sm font-medium rounded-lg border border-[#d0d0d0] dark:border-[#3d3b36] text-[#666666] dark:text-[#a8a49c] hover:bg-[#e8e8e8] dark:hover:bg-[#3d3b36] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Cancel
-              </button>
-              {hasRepoChanged && isValidRepo && (
+              {/* Buttons - inline on desktop */}
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={handleDone}
+                  onClick={handleCancel}
                   disabled={isLoading}
-                  className="px-4 py-2 text-sm font-medium rounded-lg bg-[#1a1a1a] dark:bg-[#F5F0EB] text-white dark:text-[#1a1a1a] hover:bg-[#333333] dark:hover:bg-[#e0dbd4] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 text-sm font-medium rounded-lg border border-[#d0d0d0] dark:border-[#3d3b36] text-[#666666] dark:text-[#a8a49c] hover:bg-[#e8e8e8] dark:hover:bg-[#3d3b36] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Change
+                  Cancel
                 </button>
-              )}
+                {hasRepoChanged && isValidRepo && (
+                  <button
+                    onClick={handleDone}
+                    disabled={isLoading}
+                    className="px-4 py-2 text-sm font-medium rounded-lg bg-[#1a1a1a] dark:bg-[#F5F0EB] text-white dark:text-[#1a1a1a] hover:bg-[#333333] dark:hover:bg-[#e0dbd4] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Change
+                  </button>
+                )}
+              </div>
             </div>
 
             <p className="text-xs text-[#888888] dark:text-[#777777]">
