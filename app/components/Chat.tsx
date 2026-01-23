@@ -247,7 +247,7 @@ export function Chat() {
             <p className="text-lg md:text-xl text-[#666666] dark:text-[#a8a49c] mb-2 text-center">
               See the code for what it really is
             </p>
-            <p className="text-sm text-[#888888] dark:text-[#777777] max-w-md text-center">
+            <p className="text-sm text-[#888888] dark:text-[#777777] max-w-md text-center px-6">
               Point Neo at any public GitHub repository. It reads, searches, and decodes the codebase for you.
             </p>
           </div>
