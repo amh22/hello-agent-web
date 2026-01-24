@@ -1,6 +1,6 @@
 # Hello, Agent (Web UI)
 
-An AI codebase explorer. By default, the agent explores its own source code - or point it at any public GitHub repo. This is POC 01b in the [agentic-patterns](https://github.com/amh22/agentic-patterns) learning roadmap - demonstrating how to "build your own Claude Code" with a web interface.
+An AI codebase explorer. By default, the agent explores its own source code - or [point it at any public GitHub repo](learnings.md#exploring-any-public-github-repo). This is POC 01b in the [agentic-patterns](https://github.com/amh22/agentic-patterns) learning roadmap - demonstrating how to "build your own Claude Code" with a web interface.
 
 **Demo pitch**: "Chat with an AI that can read and explain a codebase"
 
@@ -132,7 +132,7 @@ pnpm dev
                                  └─────────────────────────────────┘
 ```
 
-The frontend (Next.js) stays on Vercel for great DX. Agent execution happens in a Cloudflare Sandbox, which provides the container environment the Agent SDK requires.
+The frontend (Next.js) stays on Vercel for great DX. Agent execution happens in a Cloudflare Sandbox, which provides the container environment the Agent SDK requires. See [Why Standard Serverless Fails](learnings.md#why-standard-serverless-fails-for-agent-sdk) for more on this architecture decision.
 
 See [hello-agent-web-worker](https://github.com/amh22/hello-agent-web-worker) for the backend.
 
@@ -175,7 +175,16 @@ If you see truncated responses in production, ensure `USE_SERVER_ACTION = false`
 - Authentication is stored in `sessionStorage` (cleared when tab closes)
 - Rate limiting and budget limits are enforced by the worker
 - Each agent request runs in an isolated sandbox container
-- Only read-only tools (Read, Glob, Grep) are allowed
+- Only read-only tools (Read, Glob, Grep) are allowed - see [Shell Commands vs Agent SDK Tools](learnings.md#security-shell-commands-vs-agent-sdk-tools)
+
+## Key Learnings
+
+- [Making an Agent Self-Aware of Its Constraints](learnings.md#making-an-agent-self-aware-of-its-constraints) - The crucial insight: "This codebase defines you"
+- [Autonomous Discovery is Non-Negotiable](learnings.md#design-philosophy-autonomous-discovery-is-non-negotiable) - Why agents must discover their own capabilities
+- [Why We Don't Use CLAUDE.md](learnings.md#why-we-dont-use-claudemd) - systemPrompt vs CLAUDE.md and when each applies
+- [Why Standard Serverless Fails](learnings.md#why-standard-serverless-fails-for-agent-sdk) - The hybrid architecture with Cloudflare Sandbox
+- [Exploring Any Public GitHub Repo](learnings.md#exploring-any-public-github-repo) - How one system prompt works for all repos
+- [Shell Commands vs Agent SDK Tools](learnings.md#security-shell-commands-vs-agent-sdk-tools) - Two execution contexts and their security models
 
 ## Related
 
