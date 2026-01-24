@@ -125,7 +125,7 @@ pnpm dev
                                  │  │ Sandbox Container         │  │
                                  │  │ - Claude Code CLI         │  │
                                  │  │ - Agent SDK               │  │
-                                 │  │ - Project files           │  │
+                                 │  │ - Requested repo (cloned) │  │
                                  │  │ - allowedTools: Read,     │  │
                                  │  │   Glob, Grep              │  │
                                  │  └───────────────────────────┘  │
