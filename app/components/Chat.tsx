@@ -10,7 +10,7 @@ import { InputWithPills, type PillType } from "./InputWithPills";
 // Toggle between Server Action and API Route for streaming
 // Server Action: simpler, but may have buffering issues in some environments
 // API Route: uses Edge runtime, guaranteed streaming support
-const USE_SERVER_ACTION = false; // Use API Route for reliable streaming in production
+// const USE_SERVER_ACTION = false; // Use API Route for reliable streaming in production
 
 interface ChatMessage {
   role: "user" | "assistant";

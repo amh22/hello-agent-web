@@ -232,7 +232,7 @@ The Agent SDK doesn't just call an API - it orchestrates a local process (Claude
 
 ### The Feature
 
-Users can point the agent at any public GitHub repository, not just the app's own codebase. The UI provides two input fields (owner + repo name) that construct a GitHub URL.
+Users can point the agent at any public GitHub repository, not just the Agent's own codebase. The UI provides two input fields (owner + repo name) that construct a GitHub URL.
 
 ### Why the Same System Prompt Works
 

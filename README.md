@@ -1,10 +1,20 @@
 # Hello, Agent (Web UI)
 
-An AI codebase explorer. By default, the agent explores its own source code - or [point it at any public GitHub repo](learnings.md#exploring-any-public-github-repo). This is POC 01b in the [agentic-patterns](https://github.com/amh22/agentic-patterns) learning roadmap - demonstrating how to "build your own Claude Code" with a web interface.
+An AI codebase explorer. By default, [the agent explores its own source code](learnings.md#making-an-agent-self-aware-of-its-constraints) - or [point it at any public GitHub repo](learnings.md#exploring-any-public-github-repo). This is POC 01b in the [agentic-patterns](https://github.com/amh22/agentic-patterns) learning roadmap - demonstrating how to "build your own Claude Code" with a web interface.
 
-**Demo pitch**: "Chat with an AI that can read and explain a codebase"
+**Demo pitch**: "Chat with an AI agent that can read and explain a codebase as its own"
 
-## Use Cases
+## Why Build This?
+
+To explore how autonomous agents can be customised to a domain and made accessible through a user interface. The architecture pattern (agent-to-UI) applies wherever users need to explore and understand a body of artefacts:
+
+- Legal teams navigating contract repositories and case files
+- Compliance officers reviewing policy documents and audit trails
+- Researchers exploring academic literature and datasets
+- New hires onboarding through company knowledge bases
+- Analysts interrogating financial reports and documentation
+
+## Codebase Use Cases (This Agent)
 
 **Current**: Non-technical stakeholders asking questions about a codebase without CLI.
 
@@ -108,6 +118,11 @@ pnpm dev
 | "Are you using any sort of session management?" | Technical deep-dive |
 | "Can you explain session management in simple, non-technical terms?" | Adaptive communication |
 | "What's another good question I could ask about this codebase?" | Creative suggestions |
+| "I'm an executive and I'd like a high-level architecture overview for a board presentation" | Role-based response, adaptive communication |
+| "What problem does this code solve?" | Purpose understanding, big-picture thinking |
+| "What's one thing that surprised you about this code?" | Subjective analysis, emergent observation |
+| "What does the commit history tell you about this project and its author?" | Git exploration, project history |
+| "Can you explain your system prompt?" | Self-awareness, meta understanding |
 | "Can you write a short poem about this codebase?" | Creative/fun responses |
 
 ## Architecture
@@ -185,6 +200,10 @@ If you see truncated responses in production, ensure `USE_SERVER_ACTION = false`
 - [Why Standard Serverless Fails](learnings.md#why-standard-serverless-fails-for-agent-sdk) - The hybrid architecture with Cloudflare Sandbox
 - [Exploring Any Public GitHub Repo](learnings.md#exploring-any-public-github-repo) - How one system prompt works for all repos
 - [Shell Commands vs Agent SDK Tools](learnings.md#security-shell-commands-vs-agent-sdk-tools) - Two execution contexts and their security models
+
+## Reference
+
+- [Key Principles for AI Agents](reference/key-principles-ai-agents.md) - Distilled wisdom from Manus, Agent-Native architecture, and Anthropic patterns
 
 ## Related
 
