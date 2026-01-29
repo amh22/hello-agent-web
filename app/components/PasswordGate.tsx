@@ -7,7 +7,8 @@ interface PasswordGateProps {
   children: ReactNode;
 }
 
-const SESSION_KEY = "hello-agent-authenticated";
+// Storage key for auth token
+export const AUTH_TOKEN_KEY = "neo-auth-token";
 
 export function PasswordGate({ children }: PasswordGateProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -17,9 +18,9 @@ export function PasswordGate({ children }: PasswordGateProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // Check sessionStorage for existing authentication
-    const authenticated = sessionStorage.getItem(SESSION_KEY);
-    if (authenticated === "true") {
+    // Check localStorage for existing token
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (token) {
       setIsAuthenticated(true);
     }
     setIsLoading(false);
@@ -34,11 +35,11 @@ export function PasswordGate({ children }: PasswordGateProps) {
 
     try {
       const result = await verifyPassword(password);
-      if (result.success) {
-        sessionStorage.setItem(SESSION_KEY, "true");
+      if (result.success && result.token) {
+        localStorage.setItem(AUTH_TOKEN_KEY, result.token);
         setIsAuthenticated(true);
       } else {
-        setError("Incorrect password. Please try again.");
+        setError(result.error || "Incorrect password. Please try again.");
         setPassword("");
       }
     } catch {

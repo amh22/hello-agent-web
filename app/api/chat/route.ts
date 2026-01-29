@@ -44,11 +44,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Get Authorization header to forward to worker
+  const authHeader = request.headers.get("Authorization");
+
   console.log("[api/chat] Forwarding request to worker:", {
     workerUrl: WORKER_URL,
     promptLength: body.prompt.length,
     repoUrl: body.repoUrl || "(default)",
     historyLength: body.history?.length || 0,
+    hasAuth: !!authHeader,
   });
 
   try {
@@ -57,6 +61,7 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...(authHeader && { Authorization: authHeader }),
       },
       body: JSON.stringify({
         prompt: body.prompt,

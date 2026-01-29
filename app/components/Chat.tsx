@@ -6,6 +6,7 @@ import { UsageDetails, type UsageData } from "./UsageDetails";
 import { ActivityPanel, type ToolUse } from "./ActivityPanel";
 import { RepoSelector } from "./RepoSelector";
 import { InputWithPills, type PillType } from "./InputWithPills";
+import { AUTH_TOKEN_KEY } from "./PasswordGate";
 
 // Toggle between Server Action and API Route for streaming
 // Server Action: simpler, but may have buffering issues in some environments
@@ -128,15 +129,26 @@ export function Chat() {
       }));
 
       // API Route - Edge runtime, guaranteed streaming
+      const token = localStorage.getItem(AUTH_TOKEN_KEY);
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
         body: JSON.stringify({
           prompt: userMessage.content,
           repoUrl,
           history,
         }),
       });
+
+      // Handle 401 - clear token and reload to show password gate
+      if (response.status === 401) {
+        localStorage.removeItem(AUTH_TOKEN_KEY);
+        window.location.reload();
+        return;
+      }
 
       if (!response.body) {
         throw new Error(`Request failed: ${response.status}`);
