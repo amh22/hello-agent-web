@@ -1,28 +1,29 @@
 "use server";
 
-import { timingSafeEqual } from "crypto";
-
 export interface AuthResult {
   success: boolean;
+  token?: string;
+  error?: string;
 }
 
 export async function verifyPassword(password: string): Promise<AuthResult> {
-  const expectedPassword = process.env.DEMO_PASSWORD;
+  // Call the API route which proxies to the worker
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/auth`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password }),
+      }
+    );
 
-  if (!expectedPassword) {
-    // If no password is set, deny access
-    return { success: false };
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("[auth] Error:", error);
+    return { success: false, error: "Authentication failed" };
   }
-
-  // Use timing-safe comparison to prevent timing attacks
-  const passwordBuffer = Buffer.from(password);
-  const expectedBuffer = Buffer.from(expectedPassword);
-
-  // Ensure both buffers are the same length for timing-safe comparison
-  if (passwordBuffer.length !== expectedBuffer.length) {
-    return { success: false };
-  }
-
-  const isValid = timingSafeEqual(passwordBuffer, expectedBuffer);
-  return { success: isValid };
 }
