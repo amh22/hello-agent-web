@@ -48,8 +48,8 @@ export function ActivityPanel({ toolHistory, turnCount, elapsedTime }: ActivityP
                 key={index}
                 className="flex items-center gap-2 text-xs text-[#666666] dark:text-[#a8a49c] overflow-hidden"
               >
-                <span className="text-[#6B4C7A] flex-shrink-0">✓</span>
-                <span className="flex-shrink-0 font-medium">{item.tool}</span>
+                <span className="text-[#6B4C7A] shrink-0">✓</span>
+                <span className="shrink-0 font-medium">{item.tool}</span>
                 {item.detail && (
                   <span className="text-[#888888] dark:text-[#8a8680] truncate" title={item.detail}>
                     {item.detail}

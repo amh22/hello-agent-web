@@ -120,8 +120,6 @@ export function Chat() {
     startTimeRef.current = Date.now();
 
     try {
-      let stream: ReadableStream<Uint8Array>;
-
       // Collect conversation history (last N questions and their responses)
       const history = messages.slice(-(HISTORY_QUESTIONS * 2)).map(m => ({
         role: m.role,
@@ -153,7 +151,7 @@ export function Chat() {
       if (!response.body) {
         throw new Error(`Request failed: ${response.status}`);
       }
-      stream = response.body;
+      const stream = response.body;
 
       const reader = stream.getReader();
       const decoder = new TextDecoder();
