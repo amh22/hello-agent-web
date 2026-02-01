@@ -47,6 +47,8 @@ export async function POST(request: NextRequest) {
   // Get Authorization header to forward to worker
   const authHeader = request.headers.get("Authorization");
 
+  const routeStart = Date.now();
+
   console.log("[api/chat] Forwarding request to worker:", {
     workerUrl: WORKER_URL,
     promptLength: body.prompt.length,
@@ -68,6 +70,11 @@ export async function POST(request: NextRequest) {
         ...(body.repoUrl && { repoUrl: body.repoUrl }),
         ...(body.history?.length && { history: body.history }),
       }),
+    });
+
+    console.log("[api/chat] Worker responded", {
+      status: response.status,
+      elapsed: Date.now() - routeStart,
     });
 
     // Even for error responses, forward the worker's body (it's NDJSON with error info)
