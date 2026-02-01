@@ -158,46 +158,87 @@ export function Chat() {
       let fullContent = "";
       let capturedUsage: UsageData | null = null;
       let toolCount = 0;
+      let eventCount = 0;
+      let workerRequestId = "";
+      const sendTime = Date.now();
+
+      console.debug("[chat] Request sent", { promptLength: userMessage.content.length });
+
+      // Buffer for handling NDJSON lines split across chunks
+      let buffer = "";
+
+      const processEvent = (event: { type: string; content?: string; tool?: string; detail?: string; turn?: number; data?: UsageData; id?: string }) => {
+        eventCount++;
+        if (eventCount === 1) {
+          console.debug("[chat] First event received", { elapsed: Date.now() - sendTime });
+        }
+
+        if (event.type === "request_id") {
+          workerRequestId = event.id || "";
+          console.debug("[chat] Worker request ID:", workerRequestId);
+        } else if (event.type === "text") {
+          // Add paragraph break between text blocks from different turns
+          if (fullContent && !fullContent.endsWith("\n")) {
+            fullContent += "\n\n";
+          }
+          fullContent += event.content;
+          setStreamingContent(fullContent);
+        } else if (event.type === "tool_use") {
+          toolCount++;
+          setToolHistory((prev) => [...prev, { tool: event.tool || "", detail: event.detail || "", timestamp: Date.now() }]);
+        } else if (event.type === "turn") {
+          setTurnCount(event.turn || 0);
+        } else if (event.type === "usage") {
+          capturedUsage = event.data || null;
+        } else if (event.type === "result") {
+          // Final result from SDK - use if we didn't get streaming text
+          if (!fullContent && event.content) {
+            fullContent = event.content;
+            setStreamingContent(fullContent);
+          }
+        } else if (event.type === "error") {
+          fullContent += `\n\nError: ${event.content}`;
+          setStreamingContent(fullContent);
+        }
+      };
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n").filter((line) => line.trim());
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || ""; // keep incomplete last line in buffer
 
         for (const line of lines) {
+          if (!line.trim()) continue;
           try {
             const event = JSON.parse(line);
-            if (event.type === "text") {
-              // Add paragraph break between text blocks from different turns
-              if (fullContent && !fullContent.endsWith("\n")) {
-                fullContent += "\n\n";
-              }
-              fullContent += event.content;
-              setStreamingContent(fullContent);
-            } else if (event.type === "tool_use") {
-              toolCount++;
-              setToolHistory((prev) => [...prev, { tool: event.tool, detail: event.detail, timestamp: Date.now() }]);
-            } else if (event.type === "turn") {
-              setTurnCount(event.turn);
-            } else if (event.type === "usage") {
-              capturedUsage = event.data;
-            } else if (event.type === "result") {
-              // Final result from SDK - use if we didn't get streaming text
-              if (!fullContent && event.content) {
-                fullContent = event.content;
-                setStreamingContent(fullContent);
-              }
-            } else if (event.type === "error") {
-              fullContent += `\n\nError: ${event.content}`;
-              setStreamingContent(fullContent);
-            }
+            processEvent(event);
           } catch {
             // Skip invalid JSON lines
+            console.debug("[chat] Skipped invalid JSON line", { length: line.length, preview: line.slice(0, 80) });
           }
         }
       }
+
+      // Process any remaining buffer after stream ends
+      if (buffer.trim()) {
+        try {
+          const event = JSON.parse(buffer);
+          processEvent(event);
+        } catch {
+          console.debug("[chat] Skipped final buffer", { length: buffer.length, preview: buffer.slice(0, 80) });
+        }
+      }
+
+      console.debug("[chat] Stream complete", {
+        elapsed: Date.now() - sendTime,
+        eventCount,
+        hasContent: !!fullContent,
+        contentLength: fullContent.length,
+        workerRequestId,
+      });
 
       // Add the complete assistant message with usage data
       if (fullContent) {
@@ -211,6 +252,12 @@ export function Chat() {
               ? { ...capturedUsage, num_tools: toolCount, total_duration_ms: totalDurationMs }
               : undefined
           },
+        ]);
+      } else {
+        console.error("[chat] Empty response", { eventCount, workerRequestId, elapsed: Date.now() - sendTime });
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: "No response received. Please try again." },
         ]);
       }
     } catch (error) {
